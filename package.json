@@ -1,6 +1,6 @@
 {
   "name": "dev.goreng.frame",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "displayName": "The Framework",
   "description": "Set of tools that make Unity Development a breeze",
   "unity": "2022.3",
