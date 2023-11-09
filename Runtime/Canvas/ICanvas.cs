@@ -7,7 +7,7 @@ namespace Frame.Runtime.Canvas
         /// <summary>
         /// Signals that the scene will be unloaded in the near future
         /// </summary>
-        public void SceneWillUnload();
+        public Task SceneWillUnload();
 
         /// <summary>
         /// Signals that the scene will be loaded
