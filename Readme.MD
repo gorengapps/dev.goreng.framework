@@ -16,6 +16,9 @@ you can use the scope `dev.goreng`
 
 ## Changelog
 
+### 0.1.6
+- Update the correct prefabs, i finally figured out how they work :)
+
 ### 0.1.5
  - Update the Readme so we have some more information on this package 
  - Fix `FetchCanvas` to also support searching child GameObject for canvases
