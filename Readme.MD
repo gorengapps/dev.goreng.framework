@@ -16,7 +16,7 @@ you can use the scope `dev.goreng`
 
 ## Changelog
 
-### 0.1.4
+### 0.1.5
  - Update the Readme so we have some more information on this package 
  - Fix `FetchCanvas` to also support searching child GameObject for canvases
  - Renamed Dataservice `Load` to `LoadList` since we always load a list of data
