@@ -13,5 +13,6 @@
     "name": "Jason Meulenhoff",
     "email": "nasi@goreng.dev",
     "url": "https://goreng.dev"
-  }
+  },
+  "hideInEditor": false
 }
