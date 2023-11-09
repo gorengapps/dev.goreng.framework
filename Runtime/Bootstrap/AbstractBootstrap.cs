@@ -12,21 +12,24 @@ namespace Frame.Runtime.Bootstrap
         private List<ICanvas> _canvasList = new List<ICanvas>();
         
         private List<ICanvas> FetchActiveCanvases()
-        {
-            var canvasList = new List<ICanvas>();
-            
-            foreach (var obj in _sceneContext.associatedScene.GetRootGameObjects())
-            {
-                var canvas = obj.GetComponent<ICanvas>();
-
-                if (canvas != null)
-                {
-                    canvasList.Add(canvas);
-                }
-            }
-
-            return canvasList;
-        }
+          {
+              var canvasList = new List<ICanvas>();
+              
+              foreach (var obj in _sceneContext.associatedScene.GetRootGameObjects())
+              {
+                  var canvases = obj.GetComponentsInChildren<ICanvas>();
+  
+                  foreach (var canvas in canvases)
+                  {
+                      if (canvas != null)
+                      {
+                          canvasList.Add(canvas);
+                      }
+                  }
+              }
+  
+              return canvasList;
+          }
         
         public virtual void OnBootstrapStart()
         {

@@ -13,6 +13,8 @@ namespace Frame.Runtime.Navigation
     {
         private readonly List<IAsyncScene> _scenes = new();
         private readonly Dictionary<string, IBootstrap> _openScreens = new();
+
+        private const string SCENES_KEY = "scenes";
         
         private IEnumerator LoadAssetsCoroutine(string key, TaskCompletionSource<bool> completionSource)
         {
@@ -45,7 +47,7 @@ namespace Frame.Runtime.Navigation
             }
             
             var source = new TaskCompletionSource<bool>();
-            StartCoroutine(LoadAssetsCoroutine("scenes", source));
+            StartCoroutine(LoadAssetsCoroutine(SCENES_KEY, source));
             await source.Task;
         }
         

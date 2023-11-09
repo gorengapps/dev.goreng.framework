@@ -35,7 +35,7 @@ namespace Frame.Runtime.Data
     
     public  partial class DataService: IDataService
     {
-        public async Task<List<T>> Load<T>(string key)
+        public async Task<List<T>> LoadList<T>(string key)
         {
             var source = new TaskCompletionSource<List<T>>();
             StartCoroutine(LoadAssetsCoroutine(key, source));
