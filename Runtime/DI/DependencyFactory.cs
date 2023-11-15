@@ -10,6 +10,22 @@ namespace Frame.Runtime.DI
         public delegate object Delegate(IDependencyProvider provider);
 
         /// <summary>
+        /// Resolve a dependency using a method 
+        /// </summary>
+        /// <param name="factory"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static Delegate Create<T>(Func<IDependencyProvider, T> factory)
+        {
+            return (provider) =>
+            {
+                var data = factory.Invoke(provider);
+                var obj = provider.Inject(data);
+                return obj;
+            };
+        }
+        
+        /// <summary>
         /// Resolves a dependency from a base C# class
         /// </summary>
         /// <typeparam name="T">The class requested</typeparam>
