@@ -5,7 +5,7 @@ If you try to fight the framework you will have a hard time.
 But extending it is quite easy.
 ## Documentation
 
-- [Dependency Injection](/Documentation/DependencyInjection.md)
+- [Dependency Injection](/Documentation/Dependency%20Injection.md)
 - Bootstrap (T.B.A)
 - Canvas (T.B.A)
 ## Requirments
