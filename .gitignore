@@ -65,3 +65,15 @@ crashlytics-build.properties
 .idea/
 
 .DS_Store
+
+.obsidian/app.json
+
+.obsidian/appearance.json
+
+.obsidian/core-plugins-migration.json
+
+.obsidian/core-plugins.json
+
+.obsidian/hotkeys.json
+
+.obsidian/workspace.json

@@ -31,13 +31,27 @@ namespace Frame.Runtime.DI.Container
 
     public partial class DependenciesContainer : IDependenciesContainer
     {
+        private readonly DependenciesCollection _collection = new();
+
+        public void Register<T>(Func<IDependencyProvider, T> factory, bool singleton)
+        {
+            var types = typeof(T).GetInterfaces().ToList();
+
+            var dependency = new Dependency
+            {
+                factory = DependencyFactory.Create(factory),
+                isSingleton = singleton,
+                types = types
+            };
+            
+            _collection.Add(dependency);
+        }
+
         public IDependencyProvider Make()
         {
-            var collection = new DependenciesCollection();
-            
             foreach (var dependency in _singletons)
             {
-                collection.Add(
+                _collection.Add(
                     new Dependency
                     {
                         factory = DependencyFactory.FromPrefab(dependency),
@@ -49,7 +63,7 @@ namespace Frame.Runtime.DI.Container
             
             foreach (var dependency in _factories)
             {
-                collection.Add(
+                _collection.Add(
                     new Dependency
                     {
                         factory = DependencyFactory.FromPrefab(dependency),
@@ -61,7 +75,7 @@ namespace Frame.Runtime.DI.Container
 
             foreach (var dependency in _entities)
             {
-                collection.Add(
+                _collection.Add(
                     new Dependency
                     {
                         factory = DependencyFactory.FromPrefab(dependency),
@@ -71,7 +85,7 @@ namespace Frame.Runtime.DI.Container
                 ); 
             }
 
-            return new BaseDependencyProvider(collection);
+            return new BaseDependencyProvider(_collection);
         }
     }
 }
