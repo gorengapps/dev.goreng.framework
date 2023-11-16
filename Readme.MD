@@ -17,7 +17,8 @@ Add a new "Scoped Registery" to your package manager and use the following url
 https://packages.goreng.dev you should be able to see The Framework package in your list.
 you can use the scope `dev.goreng`
 ## Changelog
-
+### 0.1.9
+- Bugfix registration of Interfaced types
 ### 0.1.7
 - Add a new way to constructor inject objects that are not prefabs
 - Add Documentation on how the DI works

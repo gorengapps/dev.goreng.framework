@@ -35,13 +35,11 @@ namespace Frame.Runtime.DI.Container
 
         public void Register<T>(Func<IDependencyProvider, T> factory, bool singleton)
         {
-            var types = typeof(T).GetInterfaces().ToList();
-
             var dependency = new Dependency
             {
                 factory = DependencyFactory.Create(factory),
                 isSingleton = singleton,
-                types = types
+                types = new List<Type>() { typeof(T) }
             };
             
             _collection.Add(dependency);
