@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Frame.Runtime.Canvas;
 using Frame.Runtime.Scene;
 using UnityEngine;
@@ -31,7 +32,7 @@ namespace Frame.Runtime.Bootstrap
               return canvasList;
           }
         
-        public virtual void OnBootstrapStart()
+        public virtual async void OnBootstrapStart()
         {
             // We only need to resolve dependencies when the bootstrap is allowed to run
             var children = GetComponentsInChildren<MonoBehaviour>(true);
@@ -43,7 +44,7 @@ namespace Frame.Runtime.Bootstrap
 
             _canvasList = FetchActiveCanvases();
             
-            SceneWillLoad();
+            await SceneWillLoad();
         }
 
         public virtual void OnBootstrapStop()
@@ -57,14 +58,20 @@ namespace Frame.Runtime.Bootstrap
                 .FirstOrDefault();
         }
 
-        public virtual void SceneWillUnload()
+        public virtual async Task SceneWillUnload()
         {
-            _canvasList.ForEach(canvas => canvas.SceneWillUnload());
+            var tasks = _canvasList
+                .Select(canvas => canvas.SceneWillUnload());
+
+            await Task.WhenAll(tasks);
         }
 
-        public virtual void SceneWillLoad()
+        public virtual async Task SceneWillLoad()
         {
-            _canvasList.ForEach(canvas => canvas.SceneWillLoad());
+            var tasks = _canvasList
+                .Select(canvas => canvas.SceneWillLoad());
+            
+            await Task.WhenAll(tasks);
         }
 
         public void Load(IAsyncScene sceneContext)

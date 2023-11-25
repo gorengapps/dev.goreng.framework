@@ -78,7 +78,7 @@ namespace Frame.Runtime.Navigation
             await targetScene.Preload();
 
             // Wait for our loading scene to be done with animating
-            loadingScene.SceneWillUnload();
+            await loadingScene.SceneWillUnload();
             
             await loadingScene.WhenDone(this);
             
@@ -141,7 +141,7 @@ namespace Frame.Runtime.Navigation
                 _openScreens.Remove(sceneHandle.sceneType);
             }
             
-            sceneHandle.SceneWillUnload();
+            await sceneHandle.SceneWillUnload();
             await sceneHandle.Unload();
         }
     }

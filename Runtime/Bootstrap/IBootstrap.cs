@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Frame.Runtime.Canvas;
 using Frame.Runtime.DI.Provider;
 using Frame.Runtime.Scene;
@@ -36,7 +37,12 @@ namespace Frame.Runtime.Bootstrap {
         /// <summary>
         /// Scene will unload in the near future 
         /// </summary>
-        void SceneWillUnload();
+        Task SceneWillUnload();
+        
+        /// <summary>
+        /// Scene will load in the near future 
+        /// </summary>
+        Task SceneWillLoad();
         
         /// <summary>
         /// Called whenever the scene is done loading and the bootstrap can be run

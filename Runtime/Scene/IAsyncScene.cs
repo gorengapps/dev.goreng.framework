@@ -20,7 +20,7 @@ namespace Frame.Runtime.Scene
         /// <summary>
         /// Called before the scene will be unloaded
         /// </summary>
-        public void SceneWillUnload();
+        public Task SceneWillUnload();
         
         /// <summary>
         /// Allows you to specify when the scene is done loading
