@@ -17,6 +17,9 @@ Add a new "Scoped Registery" to your package manager and use the following url
 https://packages.goreng.dev you should be able to see The Framework package in your list.
 you can use the scope `dev.goreng`
 ## Changelog
+### 0.2.0
+- Updated how we handle scene unloading, we will now wait until the task was completed 
+- Added an Implicit Used flag on Injectable so we wont generate warnings
 ### 0.1.9
 - Bugfix registration of Interfaced types
 ### 0.1.7
