@@ -162,9 +162,14 @@ namespace Frame.Runtime.Scene
             await InternalLoad(false, true);
         }
 
-        public void SceneWillUnload()
+        public async Task SceneWillUnload()
         {
-            _cachedBootstrap?.SceneWillUnload();
+            if (_cachedBootstrap == null)
+            {
+                return;
+            }
+            
+            await _cachedBootstrap.SceneWillUnload();
         }
 
         public virtual Task WhenDone(MonoBehaviour runner)
