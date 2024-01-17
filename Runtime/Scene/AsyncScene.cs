@@ -153,6 +153,14 @@ namespace Frame.Runtime.Scene
                 }
             }
         }
+
+        /// <summary>
+        /// Explicitly unload the scene if this handle gets destroyed
+        /// </summary>
+        private async void OnDestroy()
+        {
+            await Unload();
+        }
     }
 
     public partial class AsyncScene: IAsyncScene
