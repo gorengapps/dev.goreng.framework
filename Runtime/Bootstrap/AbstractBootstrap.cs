@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -45,6 +46,11 @@ namespace Frame.Runtime.Bootstrap
             _canvasList = FetchActiveCanvases();
             
             await SceneWillLoad();
+        }
+
+        private void OnApplicationQuit()
+        {
+            OnBootstrapStop();
         }
 
         public virtual void OnBootstrapStop()
