@@ -27,6 +27,12 @@ namespace Frame.Runtime.DI.Container
         /// </summary>
         [Header("This defines all the entities that should be unique per request, registered under their concrete type")]
         [SerializeField] private List<MonoBehaviour> _entities;
+
+        /// <summary>
+        /// This defines all the scriptable objects that need to be injected
+        /// </summary>
+        [Header("This defines all the scriptable objects that should be unique, registered under their interface types")]
+        [SerializeField] private List<ScriptableObject> _scriptableObjects;
     }
 
     public partial class DependenciesContainer : IDependenciesContainer
@@ -79,6 +85,18 @@ namespace Frame.Runtime.DI.Container
                         factory = DependencyFactory.FromPrefab(dependency),
                         types = new List<Type> { dependency.GetType() },
                         isSingleton = false
+                    }
+                ); 
+            }
+
+            foreach (var dependency in _scriptableObjects)
+            {
+                _collection.Add(
+                    new Dependency
+                    {
+                        factory = DependencyFactory.FromScriptableObject(dependency),
+                        types =  dependency.GetType().GetInterfaces().ToList(),
+                        isSingleton = true
                     }
                 ); 
             }
