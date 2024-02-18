@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using Frame.Runtime.DI.Provider;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Frame.Runtime.DI
 {
@@ -42,6 +43,15 @@ namespace Frame.Runtime.DI
                 type.GetConstructor(Type.EmptyTypes)?.Invoke(obj, null);
 
                 return (T)obj;
+            };
+        }
+        
+        public static Delegate FromScriptableObject<T>(T obj) where T: ScriptableObject
+        {
+            return (provider) =>
+            {
+                var clone = Object.Instantiate(obj as T);
+                return clone;
             };
         }
 
