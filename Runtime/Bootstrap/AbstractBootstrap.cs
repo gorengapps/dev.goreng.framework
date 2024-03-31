@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Frame.Runtime.Canvas;
+using Frame.Runtime.Navigation;
 using Frame.Runtime.Scene;
+using Framework.DI;
 using UnityEngine;
 
 namespace Frame.Runtime.Bootstrap
@@ -11,10 +14,12 @@ namespace Frame.Runtime.Bootstrap
     public abstract class AbstractBootstrap : MonoBehaviour, IBootstrap
     {
         protected IAsyncScene _sceneContext;
+        [InjectField] protected INavigationService _navigationService;
+        
         private List<ICanvas> _canvasList = new List<ICanvas>();
         
         private List<ICanvas> FetchActiveCanvases()
-          {
+        {
               var canvasList = new List<ICanvas>();
               
               foreach (var obj in _sceneContext.associatedScene.GetRootGameObjects())
@@ -31,7 +36,29 @@ namespace Frame.Runtime.Bootstrap
               }
   
               return canvasList;
-          }
+        }
+
+        private void ResolveCanvases()
+        {
+            
+            var fields = GetType().GetFields(
+                BindingFlags.Public | 
+                BindingFlags.NonPublic | 
+                BindingFlags.DeclaredOnly | 
+                BindingFlags.Instance
+            );
+                
+            foreach (var field in fields)
+            {
+                if (field.GetCustomAttribute<FetchCanvasAttribute>(false) == null)
+                {
+                    continue;
+                }
+                    
+                field.SetValue(this, FetchCanvasViaType(field.FieldType));
+            }
+
+        }
         
         public virtual async void OnBootstrapStart()
         {
@@ -44,6 +71,8 @@ namespace Frame.Runtime.Bootstrap
             }
 
             _canvasList = FetchActiveCanvases();
+            
+            ResolveCanvases();
             
             await SceneWillLoad();
         }
@@ -58,10 +87,21 @@ namespace Frame.Runtime.Bootstrap
             
         }
 
+        public IAsyncScene GetSceneContext()
+        {
+            return _sceneContext;
+        }
+
         public T FetchCanvas<T>() where T: ICanvas
         {
             return _canvasList.OfType<T>()
                 .FirstOrDefault();
+        }
+        
+        private ICanvas FetchCanvasViaType(Type type)
+        {
+            
+            return _canvasList.FirstOrDefault(x => x.GetType().GetInterfaces().Contains(type));
         }
 
         public virtual async Task SceneWillUnload()

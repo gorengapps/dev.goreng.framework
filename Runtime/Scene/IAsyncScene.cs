@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Frame.Runtime.Bootstrap;
+using Frame.Runtime.RunLoop;
 using UnityEngine;
 
 namespace Frame.Runtime.Scene
@@ -25,12 +26,12 @@ namespace Frame.Runtime.Scene
         /// <summary>
         /// Allows you to specify when the scene is done loading
         /// </summary>
-        public Task WhenDone(MonoBehaviour runner);
+        public Task WhenDone(IRunLoop runner);
         
         /// <summary>
         /// Continues the scene that was preloaded
         /// </summary>
-        public Task Continue(MonoBehaviour runner);
+        public Task Continue(IRunLoop runner);
         
         /// <summary>
         /// Loads the scene and activates it immediately

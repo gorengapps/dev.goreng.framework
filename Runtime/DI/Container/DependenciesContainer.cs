@@ -50,6 +50,18 @@ namespace Frame.Runtime.DI.Container
             
             _collection.Add(dependency);
         }
+        
+        public void Register<T, T1>(Func<IDependencyProvider, T> factory, bool singleton)
+        {
+            var dependency = new Dependency
+            {
+                factory = DependencyFactory.Create(factory),
+                isSingleton = singleton,
+                types = new List<Type>() { typeof(T), typeof(T1) }
+            };
+            
+            _collection.Add(dependency);
+        }
 
         public IDependencyProvider Make()
         {

@@ -17,6 +17,13 @@ Add a new "Scoped Registery" to your package manager and use the following url
 https://packages.goreng.dev you should be able to see The Framework package in your list.
 you can use the scope `dev.goreng`
 ## Changelog
+### 0.2.3
+- Removed Monobehaviour from `NavigationService` and `DataService` please use class injection to make them available to your project
+- Added IRunLoop which allow you to give non monobehaviours coroutine logic and update loops
+- AbstractBootstrap now has a default `NavigationService` this was done since navigation service is essential.
+- Added a `[FetchCanvas]` attribute allowing to prefetch the canvas automagically
+- Added a menu `Tools/Force Service Scene` This allows you to force the Services scene to start when pressing play.
+
 ### 0.2.0
 - Updated how we handle scene unloading, we will now wait until the task was completed 
 - Added an Implicit Used flag on Injectable so we wont generate warnings
