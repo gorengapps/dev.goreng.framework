@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Frame.Runtime.DI.Collections;
 using Framework.DI;
@@ -39,18 +40,29 @@ namespace Frame.Runtime.DI.Provider
             
             if (dependency.isSingleton)
             {
+                // Check all dependencies to see if we have a matching type
+                foreach (var kvp in _singletons)
+                {
+                    if (kvp.Value == null)
+                    {
+                        continue;
+                    }
+                    
+                    if (kvp.Value.GetType().GetInterfaces().Contains(type))
+                    {
+                        return kvp.Value;
+                    }
+                }
+                
                 if (!_singletons.ContainsKey(type))
                 {
                     _singletons.Add(type, dependency.factory(this));
                 }
 
-                if (_singletons.TryGetValue(type, out var value))
+                if (_singletons.TryGetValue(type, out var value) && value.Equals(null))
                 {
-                    if (value.Equals(null))
-                    {
-                        Debug.LogWarning($"The singleton {type} was destroyed; Overwriting with new instance");
-                        _singletons[type] = dependency.factory(this);
-                    }
+                    Debug.LogWarning($"The singleton {type} was destroyed; Overwriting with new instance");
+                    _singletons[type] = dependency.factory(this);
                 }
                 
                 return _singletons[type];

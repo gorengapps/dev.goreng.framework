@@ -7,7 +7,7 @@ namespace Frame.Runtime.Bootstrap {
     public interface IBootstrap
     {
         protected static IDependencyProvider provider;
-
+        
         /// <summary>
         /// Binds a dependency provider to the bootstrap
         /// </summary>
@@ -26,6 +26,8 @@ namespace Frame.Runtime.Bootstrap {
         /// The bootstrap call that will be run before the scene will unload
         /// </summary>
         void OnBootstrapStop();
+
+        IAsyncScene GetSceneContext();
 
         /// <summary>
         /// Fetch an active canvas that lives in this scene scope

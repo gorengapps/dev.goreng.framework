@@ -1,42 +1,29 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Frame.Runtime.Bootstrap;
+using Frame.Runtime.Data;
+using Frame.Runtime.RunLoop;
 using Frame.Runtime.Scene;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 
 namespace Frame.Runtime.Navigation
 {
-    public partial class NavigationService: MonoBehaviour
+    public partial class NavigationService
     {
-        private readonly List<IAsyncScene> _scenes = new();
+        private const string _scenesKey = "scenes";
+        
+        private List<IAsyncScene> _scenes = new();
         private readonly Dictionary<string, IBootstrap> _openScreens = new();
 
-        private const string SCENES_KEY = "scenes";
+        private readonly IDataService _dataService;
+        private readonly IRunLoop _runLoop;
         
-        private IEnumerator LoadAssetsCoroutine(string key, TaskCompletionSource<bool> completionSource)
+
+        public NavigationService(IDataService dataService, IRunLoop runLoop)
         {
-            var handle = Addressables.LoadResourceLocationsAsync(key);
-            
-            while (!handle.IsDone)
-            {
-                yield return new WaitForEndOfFrame();
-            }
-
-            var locations = handle.Result;
-            
-            Addressables.LoadAssetsAsync<IAsyncScene>(locations, (data) => {
-                _scenes.Add(data);
-            });
-
-            while (_scenes.Count != locations.Count)
-            {
-                yield return new WaitForEndOfFrame();
-            }
-            
-            completionSource.SetResult(true);
+            _dataService = dataService;
+            _runLoop = runLoop;
         }
         
         private async Task Initialise()
@@ -46,9 +33,7 @@ namespace Frame.Runtime.Navigation
                 return;
             }
             
-            var source = new TaskCompletionSource<bool>();
-            StartCoroutine(LoadAssetsCoroutine(SCENES_KEY, source));
-            await source.Task;
+            _scenes = await _dataService.LoadList<IAsyncScene>(_scenesKey);
         }
         
         private IAsyncScene FetchScene(string type)
@@ -80,10 +65,10 @@ namespace Frame.Runtime.Navigation
             // Wait for our loading scene to be done with animating
             await loadingScene.SceneWillUnload();
             
-            await loadingScene.WhenDone(this);
+            await loadingScene.WhenDone(_runLoop);
             
             // Continue the runner
-            await targetScene.Continue(this);
+            await targetScene.Continue(_runLoop);
             
             // Unload our loading scene
             await loadingScene.Unload();
@@ -106,12 +91,12 @@ namespace Frame.Runtime.Navigation
 
         public async Task<T> ShowSupplementaryScene<T>(string destination, bool setActive = false)
         {
-            if (_openScreens.ContainsKey(destination))
-            {
-                return (T)_openScreens[destination];
-            }
-            
             await Initialise();
+            
+            if (_openScreens.TryGetValue(destination, out var screen))
+            {
+                return (T)screen;
+            }
             
             var supplementaryScene = FetchScene(destination);
 
@@ -124,13 +109,8 @@ namespace Frame.Runtime.Navigation
 
         public T GetSupplementarySceneHandle<T>(string type) where T: class
         {
-            // Check for open scenes and remove it if its available
-            if (_openScreens.ContainsKey(type))
-            {
-                return (T)_openScreens[type];
-            }
-
-            return null;
+            _openScreens.TryGetValue(type, out var screen);
+            return (T)screen;
         }
 
         public async Task Unload(IAsyncScene sceneHandle)

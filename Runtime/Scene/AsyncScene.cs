@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Frame.Runtime.Bootstrap;
+using Frame.Runtime.RunLoop;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -101,7 +102,7 @@ namespace Frame.Runtime.Scene
         /// Method will convert the Scene Activation coroutine into an awaitable async version that works with WebGL
         /// </summary>
         /// <param name="runner">The MonoBehaviour that will run the routine</param>
-        private async Task ActivateScene(MonoBehaviour runner)
+        private async Task ActivateScene(IRunLoop runner)
         {
             // We didnt have the scene loaded yet
             if (_sceneInstance.Equals(default))
@@ -114,7 +115,7 @@ namespace Frame.Runtime.Scene
 
             Action completion = () => { source.SetResult(true); };
 
-            runner.StartCoroutine(ActivateSceneCoroutine(completion, true));
+            runner.Coroutine(ActivateSceneCoroutine(completion, true));
 
             await source.Task;
 
@@ -180,12 +181,12 @@ namespace Frame.Runtime.Scene
             await _cachedBootstrap.SceneWillUnload();
         }
 
-        public virtual Task WhenDone(MonoBehaviour runner)
+        public virtual Task WhenDone(IRunLoop runner)
         {
             return Task.CompletedTask;
         }
 
-        public async Task Continue(MonoBehaviour runner)
+        public async Task Continue(IRunLoop runner)
         {
             await ActivateScene(runner);
         }
