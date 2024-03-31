@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Threading.Tasks;
+using Frame.Runtime.RunLoop;
 using UnityEngine;
 
 namespace Frame.Runtime.Scene
@@ -25,14 +26,14 @@ namespace Frame.Runtime.Scene
             return overrideTask != null;
         }
         
-        private async Task WaitForPreparation(MonoBehaviour runner)
+        private async Task WaitForPreparation(IRunLoop runner)
         {
             var source = new TaskCompletionSource<bool>();
-            runner.StartCoroutine(PrepareTaskCoroutine(CheckForOverrideTask, source));
+            runner.Coroutine(PrepareTaskCoroutine(CheckForOverrideTask, source));
             await source.Task;
         }
         
-        public override async Task WhenDone(MonoBehaviour runner)
+        public override async Task WhenDone(IRunLoop runner)
         {
             await WaitForPreparation(runner);
             await overrideTask;
