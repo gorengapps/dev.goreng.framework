@@ -1,6 +1,6 @@
 {
   "name": "dev.goreng.frame",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "displayName": "The Framework",
   "description": "Set of tools that make Unity Development a breeze",
   "unity": "2022.3",
@@ -12,7 +12,7 @@
   "author": {
     "name": "Jason Meulenhoff",
     "email": "nasi@goreng.dev",
-    "url": "https://goreng.dev"
+    "url": "https://packages.goreng.dev"
   },
   "hideInEditor": false
 }

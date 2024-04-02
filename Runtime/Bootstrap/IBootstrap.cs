@@ -6,6 +6,9 @@ using Frame.Runtime.Scene;
 namespace Frame.Runtime.Bootstrap {
     public interface IBootstrap
     {
+        /// <summary>
+        /// Static provider to resolve internal dependencies
+        /// </summary>
         protected static IDependencyProvider provider;
         
         /// <summary>
@@ -27,7 +30,11 @@ namespace Frame.Runtime.Bootstrap {
         /// </summary>
         void OnBootstrapStop();
 
-        IAsyncScene GetSceneContext();
+        /// <summary>
+        /// Unloads the current scene
+        /// </summary>
+        /// <returns></returns>
+        Task Unload();
 
         /// <summary>
         /// Fetch an active canvas that lives in this scene scope
