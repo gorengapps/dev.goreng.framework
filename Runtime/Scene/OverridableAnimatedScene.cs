@@ -11,7 +11,7 @@ namespace Frame.Runtime.Scene
     {
         public Task overrideTask = null;
 
-        private IEnumerator PrepareTaskCoroutine(Func<bool> predicate, TaskCompletionSource<bool> completionSource)
+        private static IEnumerator PrepareTaskCoroutine(Func<bool> predicate, TaskCompletionSource<bool> completionSource)
         {
             while (!predicate.Invoke())
             {

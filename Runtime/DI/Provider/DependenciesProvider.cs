@@ -43,7 +43,7 @@ namespace Frame.Runtime.DI.Provider
                 // Check all dependencies to see if we have a matching type
                 foreach (var kvp in _singletons)
                 {
-                    if (kvp.Value == null)
+                    if (kvp.Value.Equals(null))
                     {
                         continue;
                     }

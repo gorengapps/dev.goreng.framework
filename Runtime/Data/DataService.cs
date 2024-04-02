@@ -10,6 +10,7 @@ namespace Frame.Runtime.Data
     public partial class DataService
     {
         private readonly IRunLoop _runLoop;
+        
         public DataService(IRunLoop runLoop)
         {
             _runLoop = runLoop;
