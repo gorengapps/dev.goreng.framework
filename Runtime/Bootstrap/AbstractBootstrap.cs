@@ -11,13 +11,27 @@ using UnityEngine;
 
 namespace Frame.Runtime.Bootstrap
 {
-    public abstract class AbstractBootstrap : MonoBehaviour, IBootstrap
+    public abstract partial class AbstractBootstrap : MonoBehaviour
     {
-        protected IAsyncScene _sceneContext;
+        /// <summary>
+        /// The navigation service that allows you to navigate easily from and to scenes
+        /// </summary>
         [InjectField] protected INavigationService _navigationService;
         
+        /// <summary>
+        /// Internal list that holds references to all the loaded ICanvas in the scene
+        /// </summary>
         private List<ICanvas> _canvasList = new List<ICanvas>();
         
+        /// <summary>
+        /// The current scene context allowing you to unload the scene
+        /// </summary>
+        protected IAsyncScene _sceneContext;
+        
+        /// <summary>
+        /// Traverse all the root objects and find all ICanvas instances
+        /// </summary>
+        /// <returns></returns>
         private List<ICanvas> FetchActiveCanvases()
         {
               var canvasList = new List<ICanvas>();
@@ -25,22 +39,18 @@ namespace Frame.Runtime.Bootstrap
               foreach (var obj in _sceneContext.associatedScene.GetRootGameObjects())
               {
                   var canvases = obj.GetComponentsInChildren<ICanvas>();
-  
-                  foreach (var canvas in canvases)
-                  {
-                      if (canvas != null)
-                      {
-                          canvasList.Add(canvas);
-                      }
-                  }
+
+                  canvasList.AddRange(canvases.Where(canvas => canvas != null));
               }
   
               return canvasList;
         }
 
+        /// <summary>
+        /// Parsing the custom [FetchCanvas] attribute to prefetch the canvas for you
+        /// </summary>
         private void ResolveCanvases()
         {
-            
             var fields = GetType().GetFields(
                 BindingFlags.Public | 
                 BindingFlags.NonPublic | 
@@ -55,11 +65,27 @@ namespace Frame.Runtime.Bootstrap
                     continue;
                 }
                     
-                field.SetValue(this, FetchCanvasViaType(field.FieldType));
+                field.SetValue(this, FetchCanvasViaInterface(field.FieldType));
             }
 
         }
         
+        private ICanvas FetchCanvasViaInterface(Type type)
+        {
+            return _canvasList.FirstOrDefault(canvas => canvas
+                .GetType()
+                .GetInterfaces()
+                .Contains(type));
+        }
+        
+        private void OnApplicationQuit()
+        {
+            OnBootstrapStop();
+        }
+    }
+
+    public abstract partial class AbstractBootstrap: IBootstrap
+    {
         public virtual async void OnBootstrapStart()
         {
             // We only need to resolve dependencies when the bootstrap is allowed to run
@@ -76,20 +102,15 @@ namespace Frame.Runtime.Bootstrap
             
             await SceneWillLoad();
         }
-
-        private void OnApplicationQuit()
-        {
-            OnBootstrapStop();
-        }
-
+        
         public virtual void OnBootstrapStop()
         {
             
         }
 
-        public IAsyncScene GetSceneContext()
+        public virtual async Task Unload()
         {
-            return _sceneContext;
+            await _navigationService.Unload(_sceneContext);
         }
 
         public T FetchCanvas<T>() where T: ICanvas
@@ -98,12 +119,6 @@ namespace Frame.Runtime.Bootstrap
                 .FirstOrDefault();
         }
         
-        private ICanvas FetchCanvasViaType(Type type)
-        {
-            
-            return _canvasList.FirstOrDefault(x => x.GetType().GetInterfaces().Contains(type));
-        }
-
         public virtual async Task SceneWillUnload()
         {
             var tasks = _canvasList
@@ -124,5 +139,5 @@ namespace Frame.Runtime.Bootstrap
         {
             _sceneContext = sceneContext;
         }
-    }
+    } 
 }

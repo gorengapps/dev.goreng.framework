@@ -19,6 +19,7 @@ namespace DefaultNamespace
         static ForceServicesScene()
         {
             _enabled = EditorPrefs.GetBool(_menuName, false);
+            Menu.SetChecked(_menuName, _enabled);
         }
         
         private static void PerformToggle(bool enabled) {
