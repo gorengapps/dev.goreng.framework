@@ -18,6 +18,9 @@ you can use the scope `dev.goreng`
 ## Change-log
 ### 0.2.5
  - Added a custom editor window for `AsyncScene` this allows us to automate some critical configuration that was easy to miss.
+	 - Automatically update the label
+	 - Automatically update the scene name to reflect the filename
+	 - Automatically update the addressable path on rename
  - Exposed a `IDependencyProvider` to `ICanvas` allow you to use dependency injection in canvases 
  - Fixed a bug that existed in `Tools/Force Service Scene` that didn't apply the force correctly on editor restarts.
  - Update documentation

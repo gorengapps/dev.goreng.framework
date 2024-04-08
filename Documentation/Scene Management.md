@@ -105,7 +105,7 @@ When declaring a new scene you can just create a regular scene. Once you have a 
 
 Once you have created the scene you are ready to configure it. fill in a type (key) for your scene that you reference from code and assign a physical Unity scene to the scene property. Mark the asset as addressable and give it the key `scenes` if it doesn't exist you can define it yourself.
 
-> From version 0.2.5 the scene key will automatically be added when creating a new scene, it will also update the address to if you rename a scene
+> From version 0.2.5 the scene label will automatically be added when creating a new scene, it will also update the address to if you rename a scene. The type will also be updated to reflect the file name. This makes configuration easier and less error prone
 
 The `NavigationService` will try to load all assets by using the key `scenes`.
 
