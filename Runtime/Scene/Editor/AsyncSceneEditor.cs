@@ -13,6 +13,8 @@ namespace Frame.Runtime.Scene.Editor
     [CustomEditor(typeof(AsyncScene), true)]
     public class AsyncSceneEditor : UnityEditor.Editor
     {
+        private const string _sceneKey = "scenes";
+            
         private void UpdateAddressableLabel()
         {
             var settings = AddressableAssetSettingsDefaultObject.Settings;
@@ -20,7 +22,6 @@ namespace Frame.Runtime.Scene.Editor
             
             var assetGuid = AssetDatabase.AssetPathToGUID(path);
             
-
             // Addressable was not created for this item
             if (settings.FindAssetEntry(assetGuid) == null)
             {
@@ -29,19 +30,31 @@ namespace Frame.Runtime.Scene.Editor
             
             var entry = settings.FindAssetEntry(assetGuid);
 
+            var sceneTypeProperty = serializedObject.FindProperty("_sceneType"); 
+            
+            // If scene type is empty, default to the name
+            if(string.IsNullOrEmpty(sceneTypeProperty.stringValue) || sceneTypeProperty.stringValue != target.name) {
+                sceneTypeProperty.stringValue = target.name;
+            }
+            
+            if (!entry.labels.Contains(_sceneKey))
+            {
+                entry.SetLabel(_sceneKey, true, true, false);   
+            }
+            
             if (entry.address != path)
             {
                 entry.SetAddress(path);
             }
-            
-            // /entry.SetAddress();
-            entry.SetLabel("scenes", true, true, false);
-
         }
         
         public override VisualElement CreateInspectorGUI()
         {
+            // Update the serializedProperty
+            serializedObject.Update();
+            
             UpdateAddressableLabel();
+            serializedObject.ApplyModifiedProperties();
             return base.CreateInspectorGUI();
         }
         
