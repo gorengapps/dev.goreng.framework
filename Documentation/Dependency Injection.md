@@ -1,4 +1,4 @@
-This is a very simple depedency injection tool that allows you to do MonoBehaviour Injection and regular constructor injection.
+This is a very simple dependency injection tool that allows you to do `MonoBehaviour` Injection and regular constructor injection.
 ## Setup
 
 Make a script that can hold a reference to our container 
@@ -40,6 +40,10 @@ Factories will return a new copy every time you ask for one.
 ### Entities
 
 Factories that will return a instance based on a concrete type, this is useful if you want to get an instance of a specific type.
+
+### Scriptable Objects
+
+Injects scriptable objects as their interface type
 
 ## Creating dependencies
 

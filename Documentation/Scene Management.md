@@ -4,10 +4,10 @@ The idea of this framework is to provide an easy to use setup to get a nice scen
 
 The package is broken down in a few structures which will be explained further down in this document.
 
-- Bootstrap
-- Canvas
-
+- [Canvas](#Canvas)
+- [Bootstrap](#Bootstrap)
 ## Canvas
+
 A canvas can be seen as a simple `View` that should be as dumb as possible, make sure that you define an interface to make it play nicely with the setup. It is in essence a regular `MonoBehaviour`.
 
 ```csharp
@@ -56,7 +56,8 @@ public parial class SampleBootstap: AbstractBootrap
 
 	// Will load the canvas automatically from your hierarchy
 	[FetchCanvas] ISampleCanvas _sampleCanvas;
-	
+
+	// Called when the bootstrap will load
 	public override OnBootstrapStart() 
 	{
 		// Important to call the base to let its do its magic
@@ -67,12 +68,13 @@ public parial class SampleBootstap: AbstractBootrap
 		_sampleCanvas?.SetValue("Done Loading");
 	}
 
-	// Called when the scene will unload
+	// Called when the bootstrap will unload
 	public override OnBootstrapStop() 
 	{
 	}
 	
-	private async Task ShowHud() {
+	private async Task ShowHud()
+	{
 		
 		var hudBootstrap = await _navigationService
 			.ShowSupplementaryScene<IHudBootstrap>("key", false);
@@ -91,9 +93,11 @@ In the above sample you see a basic structured bootstrap. That once the bootstra
 
 Since there needs to be some time for the Bootstrap to prepare itself. It will eat up the basic `Start` that is declared in Unity. You can still override / use these functionalities yourself but be aware that all your dependencies will not be resolved yet.
 
+You can view `AbstractBootstrap` to see the implementation in more details.
+
 Its up to the developer to not clutter your `Controller` / `Bootstrap` you can use other patterns to break up logic into chunks (`Repositories` / `DataSources` / `Services` )
 
-## Setup in Editor
+## Editor Setup
 
 When declaring a new scene you can just create a regular scene. Once you have a scene in Unity you can right click to create a Framework scene
 
@@ -101,7 +105,7 @@ When declaring a new scene you can just create a regular scene. Once you have a 
 
 Once you have created the scene you are ready to configure it. fill in a type (key) for your scene that you reference from code and assign a physical Unity scene to the scene property. Mark the asset as addressable and give it the key `scenes` if it doesn't exist you can define it yourself.
 
-> From 0.2.5 the scene key will automatically be added when creating a new scene
+> From version 0.2.5 the scene key will automatically be added when creating a new scene, it will also update the address to if you rename a scene
 
 The `NavigationService` will try to load all assets by using the key `scenes`.
 
