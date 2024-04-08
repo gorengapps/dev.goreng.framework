@@ -24,6 +24,7 @@ you can use the scope `dev.goreng`
  - Exposed a `IDependencyProvider` to `ICanvas` allow you to use dependency injection in canvases 
  - Fixed a bug that existed in `Tools/Force Service Scene` that didn't apply the force correctly on editor restarts.
  - Update documentation
+ - Add `IRef` class to allow for interface serialization.
 ### 0.2.3
 - Removed `MonoBehaviour` from `NavigationService` and `DataService` please use class injection to make them available to your project
 - Added IRunLoop which allow you to give non `MonoBehaviours` coroutine logic and update loops
