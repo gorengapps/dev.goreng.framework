@@ -102,11 +102,13 @@ public class Core: MonoBehaviour {
     public void Start() {
          
         // Register the Data object as a dependency, setting it as a singleton 
-        _container.value.Register((provider) => new Data(Guid.NewGuid().ToString()), true);
+        _container.value.Register((provider) => 
+        new Data(Guid.NewGuid().ToString()), true);
         
         // Register the DataContainer object as a dependency, setting it as a singleton
         // Using the provider we can grab other dependencies to resolve (make sure they do exist tho)
-        _container.value.Register((provider) => new DataContainer(provider.Get<IDataHolder>()), true); 
+        _container.value.Register((provider) => 
+        new DataContainer(provider.Get<IDataHolder>()), true); 
           
         // Create the container on startup    
         provider = _container.value.Make();
