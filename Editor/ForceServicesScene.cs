@@ -20,6 +20,7 @@ namespace DefaultNamespace
         {
             _enabled = EditorPrefs.GetBool(_menuName, false);
             Menu.SetChecked(_menuName, _enabled);
+            Force(_enabled);
         }
         
         private static void PerformToggle(bool enabled) {
