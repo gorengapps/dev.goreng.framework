@@ -6,7 +6,7 @@ namespace Frame.Runtime.RunLoop
     public interface IRunLoop
     {
         /// <summary>
-        /// Subscibe to runloop notifications
+        /// Subscribe to runloop notifications
         /// </summary>
         /// <param name="callback"></param>
         public void Subscribe(Action<float> callback);

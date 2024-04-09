@@ -3,7 +3,7 @@
 using UnityEditor;
 using UnityEditor.SceneManagement;
 
-namespace DefaultNamespace
+namespace Frame.Editor
 {
     /// <summary>
     /// Item allows you to force the service scene as the default scene, this could be a wanted function since the

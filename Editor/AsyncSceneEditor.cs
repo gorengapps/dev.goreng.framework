@@ -1,14 +1,11 @@
 #if UNITY_EDITOR
 
-using System;
-using System.IO;
+using Frame.Runtime.Scene;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
-using UnityEditor.AddressableAssets.Settings;
-using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Frame.Runtime.Scene.Editor
+namespace Frame.Editor
 {
     [CustomEditor(typeof(AsyncScene), true)]
     public class AsyncSceneEditor : UnityEditor.Editor

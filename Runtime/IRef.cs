@@ -31,11 +31,14 @@ namespace Frame.Runtime
             }
 
             foreach (var component in gameObject.GetComponents<Component>())
-            { 
-                if (component is T){
-                    target = component;
-                    break;
+            {
+                if (component is not T)
+                {
+                    continue;
                 }
+                
+                target = component;
+                break;
             }
         }
  

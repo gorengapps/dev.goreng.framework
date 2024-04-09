@@ -26,6 +26,8 @@ you can use the scope `dev.goreng`
  - Update documentation
  - Add `IRef` class to allow for interface serialization.
 ### 0.2.3
+ - Update styling
+### 0.2.3
 - Removed `MonoBehaviour` from `NavigationService` and `DataService` please use class injection to make them available to your project
 - Added IRunLoop which allow you to give non `MonoBehaviours` coroutine logic and update loops
 - AbstractBootstrap now has a default `NavigationService` this was done since navigation service is essential.
