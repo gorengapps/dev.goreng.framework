@@ -25,7 +25,7 @@ you can use the scope `dev.goreng`
  - Fixed a bug that existed in `Tools/Force Service Scene` that didn't apply the force correctly on editor restarts.
  - Update documentation
  - Add `IRef` class to allow for interface serialization.
-### 0.2.3
+### 0.2.4
  - Update styling
 ### 0.2.3
 - Removed `MonoBehaviour` from `NavigationService` and `DataService` please use class injection to make them available to your project
