@@ -1,7 +1,5 @@
 using System;
 using System.Collections;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Frame.Runtime.Bootstrap;
 using Frame.Runtime.RunLoop;
@@ -13,7 +11,6 @@ using UnityEngine.SceneManagement;
 
 namespace Frame.Runtime.Scene
 {
-    [CreateAssetMenu(fileName = "AsyncScene", menuName = "Framework/Scene/Create Scene")]
     public partial class AsyncScene : ScriptableObject
     {
         [SerializeField] private string _sceneType;

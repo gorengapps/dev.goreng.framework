@@ -1,6 +1,7 @@
 using System;
 using Frame.Runtime.DI.Collections;
 using Frame.Runtime.DI.Provider;
+using UnityEngine;
 
 namespace Frame.Runtime.DI.Container
 {
