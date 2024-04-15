@@ -35,6 +35,22 @@ namespace Frame.Runtime.DI.Container
         [SerializeField] private List<ScriptableObject> _scriptableObjects;
     }
 
+    /// <summary>
+    /// Internal Methods
+    /// </summary>
+    public partial class DependenciesContainer
+    {
+        internal void EditorRegisterSingleton(MonoBehaviour behaviour)
+        {
+            if (_singletons.Contains(behaviour))
+            {
+                return;
+            }
+            
+            _singletons.Add(behaviour);
+        }
+    }
+
     public partial class DependenciesContainer : IDependenciesContainer
     {
         private readonly DependenciesCollection _collection = new();

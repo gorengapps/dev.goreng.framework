@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="flex-grow: 1; margin-right: 16px; margin-left: 16px; margin-top: 16px; margin-bottom: 16px;">
+        <ui:Label tabindex="-1" text="The Framework (Setup)" parse-escape-sequences="true" display-tooltip-when-elided="true" style="align-items: auto; justify-content: flex-start; -unity-text-align: upper-center; -unity-font-style: bold; -unity-font: resource(&apos;Fonts/Inter-Bold&apos;); font-size: 18px;" />
+        <ui:Label tabindex="-1" text="This setup window allows you to easily setup the framework." parse-escape-sequences="true" display-tooltip-when-elided="true" style="align-items: auto; justify-content: flex-start; -unity-text-align: upper-left; -unity-font-style: normal; -unity-font: resource(&apos;Fonts/Inter-Regular&apos;); font-size: 14px; height: 24px; flex-grow: 1; text-overflow: clip; white-space: normal;" />
+        <ui:VisualElement style="flex-grow: 1;" />
+        <ui:Button text="Create RunLoop Prefab" parse-escape-sequences="true" display-tooltip-when-elided="true" name="RunLoopButton" />
+    </ui:VisualElement>
+</ui:UXML>
