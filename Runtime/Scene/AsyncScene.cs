@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Threading.Tasks;
 using Frame.Runtime.Bootstrap;
-using Frame.Runtime.RunLoop;
+using Framework.Loop;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;

@@ -6,6 +6,8 @@
   "unity": "2022.3",
   "unityRelease": "7f1",
   "dependencies": {
+    "dev.goreng.di" : "0.0.1",
+    "dev.goreng.loop": "0.0.2",
     "com.unity.addressables": "1.21.17",
     "com.unity.nuget.newtonsoft-json": "3.2.1"
   },
