@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
-using Frame.Runtime.Bootstrap;
-using Frame.Runtime.DI.Provider;
+using Framework.DI.Provider;
 
 namespace Frame.Runtime.Canvas
 {

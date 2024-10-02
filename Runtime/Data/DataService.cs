@@ -1,43 +1,23 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Frame.Runtime.RunLoop;
-using UnityEngine;
 using UnityEngine.AddressableAssets;
 
 namespace Frame.Runtime.Data
 {
     public partial class DataService
     {
-        private readonly IRunLoop _runLoop;
-        
-        public DataService(IRunLoop runLoop)
-        {
-            _runLoop = runLoop;
-        }
-        
-        private IEnumerator LoadAssetsCoroutine<T>(string key, TaskCompletionSource<List<T>> completionSource)
+        private static async Task<List<T>> LoadAssets<T>(string key)
         {
             var handle = Addressables.LoadResourceLocationsAsync(key, typeof(T));
-            
-            while (!handle.IsDone)
-            {
-                yield return new WaitForEndOfFrame();
-            }
 
-            var locations = handle.Result;
-            var cachedObjects = new List<T>();
+            var locations = await handle.Task;
             
-            Addressables.LoadAssetsAsync<T>(locations, (data) => {
-                cachedObjects.Add(data);
-            });
+            var tasks = locations.Select(location => 
+                Addressables.LoadAssetAsync<T>(location).Task
+            );
 
-            while (cachedObjects.Count != locations.Count) 
-            {
-                yield return new WaitForEndOfFrame();
-            }
-            
-            completionSource.SetResult(cachedObjects);
+            return (await Task.WhenAll(tasks)).ToList();
         }
     }
     
@@ -45,9 +25,7 @@ namespace Frame.Runtime.Data
     {
         public async Task<List<T>> LoadList<T>(string key)
         {
-            var source = new TaskCompletionSource<List<T>>();
-            _runLoop.Coroutine(LoadAssetsCoroutine(key, source));
-            return await source.Task;
+            return await LoadAssets<T>(key);
         }
     }
 }

@@ -1,7 +1,7 @@
 using Frame.Runtime.Data;
-using Frame.Runtime.DI.Container;
 using Frame.Runtime.Navigation;
-using Frame.Runtime.RunLoop;
+using Framework.DI.Container;
+using Framework.Loop;
 
 namespace Frame.Runtime
 {
@@ -10,7 +10,7 @@ namespace Frame.Runtime
         public static void RegisterBaseDependencies(IDependenciesContainer container)
         {
             container.Register<IDataService>(
-                provider => new DataService(provider.Get<IRunLoop>()),
+                provider => new DataService(),
                 true
             );   
         

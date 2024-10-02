@@ -1,10 +1,8 @@
 #if UNITY_EDITOR
 
-using System;
-using System.IO;
 using System.Linq;
-using Frame.Runtime.DI.Container;
-using Frame.Runtime.RunLoop;
+using Framework.DI.Container;
+using Framework.Loop;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
@@ -86,17 +84,15 @@ namespace Frame.Editor
                     $"Please create a dependency container before running this", 
                     "Ok"
                 );
+                
+                return;
             }
             
             if (runLoop != null)
             {
-                EditorUtility.DisplayDialog(
-                    "Runloop already exists", 
-                    $"There is no need to create this anymore", 
-                    "Ok"
-                );
-
                 Selection.activeObject = runLoop;
+                    container.EditorRegisterSingleton(runLoop.GetComponent<RunLoop>());
+                AssetDatabase.SaveAssetIfDirty(container);
                 return;
             }
 
