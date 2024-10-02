@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Frame.Runtime.Canvas;
-using Frame.Runtime.DI.Provider;
 using Frame.Runtime.Scene;
+using Framework.DI.Provider;
 
 namespace Frame.Runtime.Bootstrap {
     public interface IBootstrap

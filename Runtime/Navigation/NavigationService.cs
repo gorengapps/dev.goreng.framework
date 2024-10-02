@@ -3,8 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Frame.Runtime.Bootstrap;
 using Frame.Runtime.Data;
-using Frame.Runtime.RunLoop;
 using Frame.Runtime.Scene;
+using Framework.Loop;
 using UnityEngine;
 
 namespace Frame.Runtime.Navigation

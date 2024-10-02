@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using Frame.Runtime.Bootstrap;
-using Frame.Runtime.RunLoop;
+using Framework.Loop;
 
 namespace Frame.Runtime.Scene
 {
