@@ -66,7 +66,7 @@ namespace Frame.Editor
         private GameObject GetRunLoop()
         {
             var runLoop = Resources
-                .FindObjectsOfTypeAll<RunLoop>()
+                .FindObjectsOfTypeAll<BaseRunLoop>()
                 .FirstOrDefault();
 
             return runLoop == null ? null : runLoop.gameObject;
@@ -91,13 +91,13 @@ namespace Frame.Editor
             if (runLoop != null)
             {
                 Selection.activeObject = runLoop;
-                    container.EditorRegisterSingleton(runLoop.GetComponent<RunLoop>());
+                    container.EditorRegisterSingleton(runLoop.GetComponent<BaseRunLoop>());
                 AssetDatabase.SaveAssetIfDirty(container);
                 return;
             }
 
             var obj = new GameObject("Runloop");
-            obj.AddComponent<RunLoop>();
+            obj.AddComponent<BaseRunLoop>();
             
             string localPath = "Assets/Resources/Prefabs/Runloop.prefab";
             localPath = AssetDatabase.GenerateUniqueAssetPath(localPath);
@@ -111,7 +111,7 @@ namespace Frame.Editor
                 return;
             }
             
-            container.EditorRegisterSingleton(prefab.GetComponent<RunLoop>());
+            container.EditorRegisterSingleton(prefab.GetComponent<BaseRunLoop>());
             
             AssetDatabase.SaveAssetIfDirty(container);
             Selection.activeObject = prefab;
