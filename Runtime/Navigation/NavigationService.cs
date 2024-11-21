@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Frame.Runtime.Bootstrap;
 using Frame.Runtime.Data;
 using Frame.Runtime.Scene;
-using Framework.Loop;
 using UnityEngine;
 
 namespace Frame.Runtime.Navigation
@@ -13,17 +12,14 @@ namespace Frame.Runtime.Navigation
     {
         private const string _scenesKey = "scenes";
         
-        private List<IAsyncScene> _scenes = new();
-        private readonly Dictionary<string, IBootstrap> _openScreens = new();
+        private List<IAsyncScene> _scenes = new List<IAsyncScene>();
+        private readonly Dictionary<string, IBootstrap> _openScreens = new Dictionary<string, IBootstrap>();
 
         private readonly IDataService _dataService;
-        private readonly IRunLoop _runLoop;
         
-
-        public NavigationService(IDataService dataService, IRunLoop runLoop)
+        public NavigationService(IDataService dataService)
         {
             _dataService = dataService;
-            _runLoop = runLoop;
         }
         
         private async Task Initialise()
@@ -45,35 +41,6 @@ namespace Frame.Runtime.Navigation
 
     public partial class NavigationService : INavigationService
     {
-        public async Task NavigateTo(string destination, string intermediate)
-        {
-            await Initialise();
-            
-            var loadingScene = FetchScene(intermediate);
-            var targetScene = FetchScene(destination);
-
-            if (loadingScene == null || targetScene == null)
-            {
-                Debug.LogError("[Navigation manager] scenes are not loaded properly");
-                return;
-            }
-            
-            // Load our loading scene and preload our target scene
-            await loadingScene.Load();
-            await targetScene.Preload();
-
-            // Wait for our loading scene to be done with animating
-            await loadingScene.SceneWillUnload();
-            
-            await loadingScene.WhenDone(_runLoop);
-            
-            // Continue the runner
-            await targetScene.Continue(_runLoop);
-            
-            // Unload our loading scene
-            await loadingScene.Unload();
-        }
-
         public async Task Navigate(string destination)
         {
             await Initialise();
@@ -82,14 +49,14 @@ namespace Frame.Runtime.Navigation
 
             if (targetScene == null)
             {
-                Debug.LogError("[Navigation manager] scenes are not loaded properly");
+                Debug.LogError($"Scene {destination} is not loaded properly");
                 return;
             }
             
             await targetScene.Load();
         }
 
-        public async Task<T> ShowSupplementaryScene<T>(string destination, bool setActive = false)
+        public async Task<T> ShowScene<T>(string destination, bool setActive = false)
         {
             await Initialise();
             
@@ -98,16 +65,24 @@ namespace Frame.Runtime.Navigation
                 return (T)screen;
             }
             
-            var supplementaryScene = FetchScene(destination);
-
-            var instance = await supplementaryScene.Load(setActive);
-
-            _openScreens[destination] = instance;
+            var scene = FetchScene(destination);
+            var bootstrap = await scene.Load(setActive);
             
-            return (T)instance;
+            _openScreens[destination] = bootstrap;
+            return (T)bootstrap;
+        }
+        
+        public async Task ShowScene(string destination, bool setActive = false)
+        {
+            await Initialise();
+            
+            var scene = FetchScene(destination);
+            var bootstrap = await scene.Load(setActive);
+            
+            _openScreens[destination] = bootstrap;
         }
 
-        public T GetSupplementarySceneHandle<T>(string type) where T: class
+        public T GetSceneHandle<T>(string type) where T: class
         {
             _openScreens.TryGetValue(type, out var screen);
             return (T)screen;
@@ -115,7 +90,7 @@ namespace Frame.Runtime.Navigation
 
         public async Task Unload(IAsyncScene sceneHandle)
         {
-            // Check for open scenes and remove it if its available
+            // Check for open scenes and remove it if it's available
             if (_openScreens.ContainsKey(sceneHandle.sceneType))
             {
                 _openScreens.Remove(sceneHandle.sceneType);
