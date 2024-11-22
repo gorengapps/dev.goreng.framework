@@ -3,13 +3,15 @@ using Framework.DI.Provider;
 
 namespace Frame.Runtime.Canvas
 {
+    /// <summary>
+    /// Defines the contract for canvas components within a scene.
+    /// </summary>
     public interface ICanvas
     {
-        
         /// <summary>
         /// Static provider to resolve internal dependencies
         /// </summary>
-        protected static IDependencyProvider provider;
+        static protected IDependencyProvider provider;
         
         /// <summary>
         /// Binds a dependency provider to the bootstrap
@@ -21,13 +23,17 @@ namespace Frame.Runtime.Canvas
         }
         
         /// <summary>
-        /// Signals that the scene will be unloaded in the near future
+        /// Signals that the scene will be unloaded in the near future.
+        /// Perform any necessary cleanup operations here.
         /// </summary>
-        public Task SceneWillUnload();
+        /// <returns>A task that represents the asynchronous unload operation.</returns>
+        Task SceneWillUnloadAsync();
 
         /// <summary>
-        /// Signals that the scene will be loaded
+        /// Signals that the scene will be loaded.
+        /// Perform any necessary initialization operations here.
         /// </summary>
-        public Task SceneWillLoad();
+        /// <returns>A task that represents the asynchronous load operation.</returns>
+        Task SceneWillLoadAsync();
     }
 }

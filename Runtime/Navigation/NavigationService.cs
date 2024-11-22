@@ -8,96 +8,142 @@ using UnityEngine;
 
 namespace Frame.Runtime.Navigation
 {
-    public partial class NavigationService
+    public class NavigationService : INavigationService
     {
         private const string _scenesKey = "scenes";
-        
-        private List<IAsyncScene> _scenes = new List<IAsyncScene>();
+
+        private readonly Dictionary<string, IAsyncScene> _scenes = new Dictionary<string, IAsyncScene>();
         private readonly Dictionary<string, IBootstrap> _openScreens = new Dictionary<string, IBootstrap>();
 
         private readonly IDataService _dataService;
-        
+        private Task _initialiseTask;
+        private readonly object _initialiseLock = new object();
+
         public NavigationService(IDataService dataService)
         {
             _dataService = dataService;
         }
-        
-        private async Task Initialise()
+
+        private Task Initialise()
         {
-            if (_scenes.Count > 0)
+            if (_initialiseTask != null)
             {
+                return _initialiseTask;
+            }
+
+            lock (_initialiseLock)
+            {
+                _initialiseTask = InitialiseInternal();
+            }
+
+            return _initialiseTask;
+        }
+
+        private async Task InitialiseInternal()
+        {
+            var scenesList = await _dataService.LoadList<IAsyncScene>(_scenesKey);
+            
+            if (scenesList == null)
+            {
+                Debug.LogError("Failed to load scenes from data service.");
                 return;
             }
             
-            _scenes = await _dataService.LoadList<IAsyncScene>(_scenesKey);
-        }
-        
-        private IAsyncScene FetchScene(string type)
-        {
-            return _scenes
-                .FirstOrDefault(x => x.sceneType == type);
-        }
-    }
+            _scenes.Clear();
 
-    public partial class NavigationService : INavigationService
-    {
+            foreach (var scene in scenesList)
+            {
+                if (scene != null && !string.IsNullOrEmpty(scene.sceneType))
+                {
+                    _scenes[scene.sceneType] = scene;
+                }
+            }
+        }
+
+        private bool TryGetScene(string type, out IAsyncScene scene)
+        {
+            return _scenes.TryGetValue(type, out scene);
+        }
+
         public async Task Navigate(string destination)
         {
             await Initialise();
-            
-            var targetScene = FetchScene(destination);
 
-            if (targetScene == null)
+            if (!TryGetScene(destination, out var targetScene))
             {
-                Debug.LogError($"Scene {destination} is not loaded properly");
+                Debug.LogError($"Scene '{destination}' is not loaded properly.");
                 return;
             }
-            
-            await targetScene.Load();
+
+            await targetScene.LoadAsync();
         }
 
-        public async Task<T> ShowScene<T>(string destination, bool setActive = false)
+        public async Task<T> ShowScene<T>(string destination, bool setActive = false) where T : class, IBootstrap
         {
             await Initialise();
-            
+
             if (_openScreens.TryGetValue(destination, out var screen))
             {
-                return (T)screen;
+                return screen as T;
             }
-            
-            var scene = FetchScene(destination);
-            var bootstrap = await scene.Load(setActive);
-            
-            _openScreens[destination] = bootstrap;
-            return (T)bootstrap;
+
+            if (!TryGetScene(destination, out var scene))
+            {
+                Debug.LogError($"Scene '{destination}' is not loaded properly.");
+                return null;
+            }
+
+            var bootstrap = await scene.LoadAsync(setActive);
+
+            if (bootstrap != null)
+            {
+                _openScreens[destination] = bootstrap;
+            }
+
+            return bootstrap as T;
         }
-        
+
         public async Task ShowScene(string destination, bool setActive = false)
         {
             await Initialise();
-            
-            var scene = FetchScene(destination);
-            var bootstrap = await scene.Load(setActive);
-            
-            _openScreens[destination] = bootstrap;
+
+            if (_openScreens.ContainsKey(destination))
+            {
+                // Scene is already open
+                return;
+            }
+
+            if (!TryGetScene(destination, out var scene))
+            {
+                Debug.LogError($"Scene '{destination}' is not loaded properly.");
+                return;
+            }
+
+            var bootstrap = await scene.LoadAsync(setActive);
+
+            if (bootstrap != null)
+            {
+                _openScreens[destination] = bootstrap;
+            }
         }
 
-        public T GetSceneHandle<T>(string type) where T: class
+        public T GetSceneHandle<T>() where T : class, IBootstrap
         {
-            _openScreens.TryGetValue(type, out var screen);
-            return (T)screen;
+            return _openScreens.Values.OfType<T>().FirstOrDefault();
         }
 
         public async Task Unload(IAsyncScene sceneHandle)
         {
-            // Check for open scenes and remove it if it's available
-            if (_openScreens.ContainsKey(sceneHandle.sceneType))
+            if (sceneHandle == null)
             {
-                _openScreens.Remove(sceneHandle.sceneType);
+                Debug.LogError("Scene handle is null.");
+                return;
             }
-            
-            await sceneHandle.SceneWillUnload();
-            await sceneHandle.Unload();
+
+            _openScreens.Remove(sceneHandle.sceneType);
+
+            await sceneHandle.SceneWillUnloadAsync();
+            await sceneHandle.UnloadAsync();
         }
     }
 }

@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Frame.Runtime.Bootstrap;
-using Frame.Runtime.Scene.Loader;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
@@ -55,7 +54,7 @@ namespace Frame.Runtime.Scene
         /// Runs the bootstrap in the loaded scene
         /// </summary>
         /// <param name="scene">The scene we want to start our bootstrap in</param>
-        private IBootstrap RunBootstrap(UnityEngine.SceneManagement.Scene scene)
+        private async Task<IBootstrap> RunBootstrap(UnityEngine.SceneManagement.Scene scene)
         {
             var bootstrap = FindObjectsByType<AbstractBootstrap>(FindObjectsSortMode.None)
                 .FirstOrDefault(x => x.gameObject.scene == scene);
@@ -66,7 +65,7 @@ namespace Frame.Runtime.Scene
             }
             
             bootstrap.Load(this);
-            bootstrap.OnBootstrapStart();
+            await bootstrap.OnBootstrapStartAsync();
 
             return bootstrap;
         }
@@ -76,32 +75,37 @@ namespace Frame.Runtime.Scene
         /// </summary>
         private async void OnDestroy()
         {
-            await Unload();
+            await UnloadAsync();
         }
     }
 
     public partial class AsyncScene: IAsyncScene
     {
-        public async Task SceneWillUnload()
+        public async Task SceneWillUnloadAsync()
         {
             if (_cachedBootstrap == null)
             {
                 return;
             }
             
-            await _cachedBootstrap.SceneWillUnload();
+            await _cachedBootstrap.SceneWillUnloadAsync();
         }
 
-        public async Task<IBootstrap> Load(bool setActive = true)
+        public async Task<IBootstrap> LoadAsync(bool setActive = true)
         {
             await InternalLoad(setActive);
-            _cachedBootstrap = RunBootstrap(_loadedScene);
+            _cachedBootstrap = await RunBootstrap(_loadedScene);
             return _cachedBootstrap;
         }
 
-        public async Task Unload()
+        public async Task UnloadAsync()
         {
-            _cachedBootstrap?.OnBootstrapStop();
+            if (_cachedBootstrap == null)
+            {
+                return;
+            }
+            
+            await _cachedBootstrap.OnBootstrapStopAsync();
             await UnloadScene();
         }
     }
