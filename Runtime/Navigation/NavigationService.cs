@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using Frame.Runtime.Attributes;
 using Frame.Runtime.Bootstrap;
 using Frame.Runtime.Data;
 using Frame.Runtime.Scene;
@@ -12,8 +15,9 @@ namespace Frame.Runtime.Navigation
     {
         private const string _scenesKey = "scenes";
 
-        private readonly Dictionary<string, IAsyncScene> _scenes = new Dictionary<string, IAsyncScene>();
-        private readonly Dictionary<string, IBootstrap> _openScreens = new Dictionary<string, IBootstrap>();
+        private readonly Dictionary<Type, IAsyncScene> _scenes = new Dictionary<Type, IAsyncScene>();
+        private readonly Dictionary<Type, IBootstrap> _openScreens = new Dictionary<Type, IBootstrap>();
+        private Dictionary<string, Type> _sceneMapping = new Dictionary<string, Type>();
 
         private readonly IDataService _dataService;
         private Task _initialiseTask;
@@ -24,7 +28,7 @@ namespace Frame.Runtime.Navigation
             _dataService = dataService;
         }
 
-        private Task Initialise()
+        public Task Initialise()
         {
             if (_initialiseTask != null)
             {
@@ -51,45 +55,55 @@ namespace Frame.Runtime.Navigation
             
             _scenes.Clear();
 
-            foreach (var scene in scenesList)
+            var validAssemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(x => !x.FullName.Contains("Unity") && !x.FullName.Contains("System"));
+            
+            _sceneMapping = validAssemblies
+                .SelectMany(x => x.GetTypes()) // Get all types
+                .Where(t => typeof(IBootstrap).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract) // Find all IBootstraps
+                .Select(t => new { Type = t, Attribute = t.GetCustomAttribute<SceneAttribute>() }) // Get all IBootstrap where we have a scene attribute
+                .Where(x => x.Attribute != null) // Filter out empty ones
+                .ToDictionary(x => x.Attribute.sceneName, x => x.Type.GetInterfaces().FirstOrDefault(t => t != typeof(IBootstrap)) ?? x.Type);
+            
+            foreach (var scene in scenesList.Where(scene => scene != null && !string.IsNullOrEmpty(scene.sceneType)))
             {
-                if (scene != null && !string.IsNullOrEmpty(scene.sceneType))
+                if (_sceneMapping.TryGetValue(scene.sceneType, out var bootstrap))
                 {
-                    _scenes[scene.sceneType] = scene;
+                    _scenes[bootstrap] = scene;
                 }
             }
         }
 
-        private bool TryGetScene(string type, out IAsyncScene scene)
+        private bool TryGetScene<T>(out IAsyncScene scene)
         {
-            return _scenes.TryGetValue(type, out scene);
+            return _scenes.TryGetValue(typeof(T), out scene);
         }
 
-        public async Task Navigate(string destination)
+        public async Task NavigateAsync<T>() where T: class, IBootstrap
         {
             await Initialise();
 
-            if (!TryGetScene(destination, out var targetScene))
+            if (!TryGetScene<T>(out var targetScene))
             {
-                Debug.LogError($"Scene '{destination}' is not loaded properly.");
+                Debug.LogError($"Scene '{typeof(T)}' is not loaded properly.");
                 return;
             }
 
             await targetScene.LoadAsync();
         }
 
-        public async Task<T> ShowScene<T>(string destination, bool setActive = false) where T : class, IBootstrap
+        public async Task<T> ShowSceneAsync<T>(bool setActive = false) where T : class, IBootstrap
         {
             await Initialise();
 
-            if (_openScreens.TryGetValue(destination, out var screen))
+            if (_openScreens.TryGetValue(typeof(T), out var screen))
             {
-                return screen as T;
+                return (T)screen;
             }
 
-            if (!TryGetScene(destination, out var scene))
+            if (!TryGetScene<T>(out var scene))
             {
-                Debug.LogError($"Scene '{destination}' is not loaded properly.");
+                Debug.LogError($"Scene '{typeof(T)}' is not loaded properly.");
                 return null;
             }
 
@@ -97,34 +111,10 @@ namespace Frame.Runtime.Navigation
 
             if (bootstrap != null)
             {
-                _openScreens[destination] = bootstrap;
+                _openScreens[typeof(T)] = bootstrap;
             }
 
             return bootstrap as T;
-        }
-
-        public async Task ShowScene(string destination, bool setActive = false)
-        {
-            await Initialise();
-
-            if (_openScreens.ContainsKey(destination))
-            {
-                // Scene is already open
-                return;
-            }
-
-            if (!TryGetScene(destination, out var scene))
-            {
-                Debug.LogError($"Scene '{destination}' is not loaded properly.");
-                return;
-            }
-
-            var bootstrap = await scene.LoadAsync(setActive);
-
-            if (bootstrap != null)
-            {
-                _openScreens[destination] = bootstrap;
-            }
         }
 
         public T GetSceneHandle<T>() where T : class, IBootstrap
@@ -132,7 +122,7 @@ namespace Frame.Runtime.Navigation
             return _openScreens.Values.OfType<T>().FirstOrDefault();
         }
 
-        public async Task Unload(IAsyncScene sceneHandle)
+        public async Task UnloadAsync(IAsyncScene sceneHandle)
         {
             if (sceneHandle == null)
             {
@@ -140,7 +130,15 @@ namespace Frame.Runtime.Navigation
                 return;
             }
 
-            _openScreens.Remove(sceneHandle.sceneType);
+            if (!_sceneMapping.TryGetValue(sceneHandle.sceneType, out var type))
+            {
+                return;
+            }
+            
+            if (_openScreens.ContainsKey(type))
+            {
+                _openScreens.Remove(type);
+            }
 
             await sceneHandle.SceneWillUnloadAsync();
             await sceneHandle.UnloadAsync();

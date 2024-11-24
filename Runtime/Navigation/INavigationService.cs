@@ -10,31 +10,27 @@ namespace Frame.Runtime.Navigation
     public interface INavigationService
     {
         /// <summary>
+        /// Initialises the navigation service
+        /// </summary>
+        /// <returns>A task that represents the asynchronous navigation operation.</returns>
+        Task Initialise();
+        
+        /// <summary>
         /// Navigates to a specified scene without displaying a loading screen.
         /// </summary>
-        /// <param name="destination">The identifier or name of the destination scene.</param>
         /// <returns>A task that represents the asynchronous navigation operation.</returns>
-        Task Navigate(string destination);
+        Task NavigateAsync<T>() where T: class, IBootstrap;
 
         /// <summary>
         /// Shows a supplementary scene on top of the active scene and returns a handle to its bootstrap instance.
         /// </summary>
         /// <typeparam name="T">The type of the bootstrap instance, which must implement <see cref="IBootstrap"/>.</typeparam>
-        /// <param name="destination">The identifier or name of the scene to show.</param>
         /// <param name="setActive">Indicates whether to set the loaded scene as the active scene. Defaults to <c>false</c>.</param>
         /// <returns>
         /// A task that represents the asynchronous operation. The task result contains the bootstrap instance of type <typeparamref name="T"/> for the loaded scene.
         /// </returns>
-        Task<T> ShowScene<T>(string destination, bool setActive = false) where T : class, IBootstrap;
-
-        /// <summary>
-        /// Shows a supplementary scene on top of the active scene without returning a handle.
-        /// </summary>
-        /// <param name="destination">The identifier or name of the scene to show.</param>
-        /// <param name="setActive">Indicates whether to set the loaded scene as the active scene. Defaults to <c>false</c>.</param>
-        /// <returns>A task that represents the asynchronous operation.</returns>
-        Task ShowScene(string destination, bool setActive = false);
-
+        Task<T> ShowSceneAsync<T>(bool setActive = false) where T : class, IBootstrap;
+        
         /// <summary>
         /// Attempts to retrieve an existing bootstrap instance of a loaded scene.
         /// </summary>
@@ -51,6 +47,6 @@ namespace Frame.Runtime.Navigation
         /// </summary>
         /// <param name="sceneHandle">The handle to the scene to unload, implementing <see cref="IAsyncScene"/>.</param>
         /// <returns>A task that represents the asynchronous unload operation.</returns>
-        Task Unload(IAsyncScene sceneHandle);
+        Task UnloadAsync(IAsyncScene sceneHandle);
     }
 }

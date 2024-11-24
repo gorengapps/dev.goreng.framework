@@ -65,7 +65,7 @@ namespace Frame.Runtime.Bootstrap
         {
             if (_navigationService != null && _sceneContext != null)
             {
-                await _navigationService.Unload(_sceneContext);
+                await _navigationService.UnloadAsync(_sceneContext);
             }
             else
             {

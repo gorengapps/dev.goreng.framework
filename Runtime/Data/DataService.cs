@@ -7,7 +7,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Frame.Runtime.Data
 {
-    public partial class DataService : IDataService
+    public class DataService : IDataService
     {
         public async Task<List<T>> LoadList<T>(string key)
         {
@@ -37,15 +37,6 @@ namespace Frame.Runtime.Data
             {
                 Debug.LogError($"Exception while loading asset with key '{key}': {ex.Message}");
             }
-            finally
-            {
-                // Release the handle to prevent memory leaks
-                if (handle.IsValid())
-                {
-                    Addressables.Release(handle);
-                }
-            }
-
             return asset;
         }
 
@@ -86,14 +77,6 @@ namespace Frame.Runtime.Data
                 Debug.LogError($"Exception while loading and instantiating asset with key '{key}': {ex.Message}");
                 return default;
             }
-            finally
-            {
-                // Release the handle to prevent memory leaks
-                if (handle.IsValid())
-                {
-                    Addressables.Release(handle);
-                }
-            }
         }
 
         private async Task<List<T>> LoadAssetsAsync<T>(string key)
@@ -112,47 +95,29 @@ namespace Frame.Runtime.Data
 
             var assets = new List<T>();
             var assetHandles = new List<AsyncOperationHandle<T>>();
-
-            try
+            
+            // Load each asset asynchronously
+            foreach (var location in locations)
             {
-                // Load each asset asynchronously
-                foreach (var location in locations)
-                {
-                    var assetHandle = Addressables.LoadAssetAsync<T>(location);
-                    assetHandles.Add(assetHandle);
-                }
-
-                // Wait for all assets to load
-                await Task.WhenAll(assetHandles.Select(handle => handle.Task));
-
-                // Collect loaded assets and handle any failures
-                foreach (var handle in assetHandles)
-                {
-                    if (handle.Status == AsyncOperationStatus.Succeeded)
-                    {
-                        assets.Add(handle.Result);
-                    }
-                    else
-                    {
-                        Debug.LogError($"Failed to load asset at location '{handle.DebugName}'.");
-                    }
-                }
-            }
-            finally
-            {
-                // Release all asset handles to prevent memory leaks
-                foreach (var handle in assetHandles)
-                {
-                    if (handle.IsValid())
-                    {
-                        Addressables.Release(handle);
-                    }
-                }
-
-                // Release the locations handle
-                Addressables.Release(locationsHandle);
+                var assetHandle = Addressables.LoadAssetAsync<T>(location);
+                assetHandles.Add(assetHandle);
             }
 
+            // Wait for all assets to load
+            await Task.WhenAll(assetHandles.Select(handle => handle.Task));
+
+            // Collect loaded assets and handle any failures
+            foreach (var handle in assetHandles)
+            {
+                if (handle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    assets.Add(handle.Result);
+                }
+                else
+                {
+                    Debug.LogError($"Failed to load asset at location '{handle.DebugName}'.");
+                }
+            }
             return assets;
         }
     }
