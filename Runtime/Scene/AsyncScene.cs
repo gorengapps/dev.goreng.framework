@@ -11,7 +11,7 @@ namespace Frame.Runtime.Scene
     {
         [SerializeField] private string _sceneType;
         [SerializeField] private AssetReference _sceneReference;
-        
+
         private UnityEngine.SceneManagement.Scene _loadedScene;
         private IBootstrap _cachedBootstrap;
 
