@@ -17,12 +17,11 @@ namespace Frame.Runtime.Data
         public async Task<T> LoadAssetAsync<T>(string key)
         {
             T asset = default;
-            AsyncOperationHandle<T> handle = default;
 
             try
             {
                 // Load the asset asynchronously using the provided key
-                handle = Addressables.LoadAssetAsync<T>(key);
+                var handle = Addressables.LoadAssetAsync<T>(key);
 
                 // Await the completion of the asset loading
                 asset = await handle.Task;
@@ -37,40 +36,28 @@ namespace Frame.Runtime.Data
             {
                 Debug.LogError($"Exception while loading asset with key '{key}': {ex.Message}");
             }
+            
             return asset;
         }
 
-        public async Task<T> LoadAndInstantiateAsync<T>(string key)
+        public async Task<T> LoadAndInstantiateAsync<T>(string key) where T: class
         {
-            AsyncOperationHandle<GameObject> handle = default;
-
             try
             {
-                // Load the GameObject asset asynchronously using the provided key
-                handle = Addressables.LoadAssetAsync<GameObject>(key);
-                var asset = await handle.Task;
-
-                if (handle.Status != AsyncOperationStatus.Succeeded)
-                {
-                    Debug.LogError($"Failed to load asset with key '{key}'.");
-                    return default;
-                }
+                var asset = await LoadAssetAsync<GameObject>(key);
 
                 // Instantiate the loaded asset
                 var instance = Object.Instantiate(asset);
 
-                // Retrieve the component of type TComponent from the instantiated object
-                var component = instance.GetComponent<T>();
-
-                if (component == null)
+                if (instance.TryGetComponent(typeof(T), out var component))
                 {
-                    Debug.LogError($"Component of type '{typeof(T)}' not found on the instantiated object.");
-                    // Optionally, destroy the instantiated object if the component is not found
-                    Object.Destroy(instance);
-                    return default;
+                    return component as T;
                 }
 
-                return component;
+                Debug.LogError($"Component of type '{typeof(T)}' not found on the instantiated object.");
+                Object.Destroy(instance);
+                return default;
+
             }
             catch (System.Exception ex)
             {
@@ -94,14 +81,9 @@ namespace Frame.Runtime.Data
             }
 
             var assets = new List<T>();
-            var assetHandles = new List<AsyncOperationHandle<T>>();
+            var assetHandles = locations.Select(Addressables.LoadAssetAsync<T>).ToList();
             
             // Load each asset asynchronously
-            foreach (var location in locations)
-            {
-                var assetHandle = Addressables.LoadAssetAsync<T>(location);
-                assetHandles.Add(assetHandle);
-            }
 
             // Wait for all assets to load
             await Task.WhenAll(assetHandles.Select(handle => handle.Task));

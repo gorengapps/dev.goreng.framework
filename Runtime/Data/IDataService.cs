@@ -40,6 +40,6 @@ namespace Frame.Runtime.Data
         /// The task result contains the component of type T from the instantiated asset.
         /// Returns <c>default</c> if the asset fails to load, instantiate, or does not contain the component.
         /// </returns>
-        Task<T> LoadAndInstantiateAsync<T>(string key);
+        Task<T> LoadAndInstantiateAsync<T>(string key) where T: class;
     }
 }
