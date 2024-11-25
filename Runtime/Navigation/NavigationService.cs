@@ -78,20 +78,7 @@ namespace Frame.Runtime.Navigation
         {
             return _scenes.TryGetValue(typeof(T), out scene);
         }
-
-        public async Task NavigateAsync<T>() where T: class, IBootstrap
-        {
-            await Initialise();
-
-            if (!TryGetScene<T>(out var targetScene))
-            {
-                Debug.LogError($"Scene '{typeof(T)}' is not loaded properly.");
-                return;
-            }
-
-            await targetScene.LoadAsync();
-        }
-
+        
         public async Task<T> ShowSceneAsync<T>(bool setActive = false) where T : class, IBootstrap
         {
             await Initialise();

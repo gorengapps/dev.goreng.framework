@@ -16,12 +16,6 @@ namespace Frame.Runtime.Navigation
         Task Initialise();
         
         /// <summary>
-        /// Navigates to a specified scene without displaying a loading screen.
-        /// </summary>
-        /// <returns>A task that represents the asynchronous navigation operation.</returns>
-        Task NavigateAsync<T>() where T: class, IBootstrap;
-
-        /// <summary>
         /// Shows a supplementary scene on top of the active scene and returns a handle to its bootstrap instance.
         /// </summary>
         /// <typeparam name="T">The type of the bootstrap instance, which must implement <see cref="IBootstrap"/>.</typeparam>
