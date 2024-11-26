@@ -15,7 +15,7 @@ namespace Frame.Runtime
             );   
         
             container.Register<INavigationService>(
-                provider => new NavigationService(provider.Get<IDataService>(), provider.Get<IRunLoop>()),
+                provider => new NavigationService(provider.Get<IDataService>()),
                 true
             );
         }

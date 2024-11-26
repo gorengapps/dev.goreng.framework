@@ -1,16 +1,45 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Frame.Runtime.Data
 {
     public interface IDataService
     {
         /// <summary>
-        /// Load a list of data in memory given the key
+        /// Loads a list of assets of type T associated with the specified key.
         /// </summary>
-        /// <param name="key">The addressable key</param>
-        /// <typeparam name="T">Type of data we want to load</typeparam>
-        /// <returns></returns>
-        public Task<List<T>> LoadList<T>(string key);
+        /// <typeparam name="T">The type of assets to load.</typeparam>
+        /// <param name="key">The key associated with the assets to load.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// The task result contains a list of loaded assets of type T.
+        /// </returns>
+        Task<List<T>> LoadList<T>(string key);
+
+        /// <summary>
+        /// Loads a single asset of type T associated with the specified key.
+        /// </summary>
+        /// <typeparam name="T">The type of the asset to load.</typeparam>
+        /// <param name="key">The key associated with the asset to load.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// The task result contains the loaded asset of type T.
+        /// </returns>
+        Task<T> LoadAssetAsync<T>(string key);
+
+        /// <summary>
+        /// Asynchronously loads an asset by key, instantiates it, and retrieves a component of type T from the instantiated GameObject.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type of the component to retrieve from the instantiated asset.
+        /// </typeparam>
+        /// <param name="key">The key of the asset to load and instantiate.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// The task result contains the component of type T from the instantiated asset.
+        /// Returns <c>default</c> if the asset fails to load, instantiate, or does not contain the component.
+        /// </returns>
+        Task<T> LoadAndInstantiateAsync<T>(string key) where T: class;
     }
 }
