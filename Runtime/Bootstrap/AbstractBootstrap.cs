@@ -11,84 +11,30 @@ using UnityEngine;
 
 namespace Frame.Runtime.Bootstrap
 {
-    public abstract partial class AbstractBootstrap : MonoBehaviour
+    public abstract partial class AbstractBootstrap : MonoBehaviour, IBootstrap
     {
         /// <summary>
-        /// The navigation service that allows you to navigate easily from and to scenes
+        /// The navigation service that allows you to navigate easily from and to scenes.
         /// </summary>
-        [InjectField] protected INavigationService _navigationService;
-        
+        [InjectField]
+        protected INavigationService _navigationService;
+
         /// <summary>
-        /// Internal list that holds references to all the loaded ICanvas in the scene
+        /// Internal list that holds references to all the loaded ICanvas instances in the scene.
         /// </summary>
-        private List<ICanvas> _canvasList = new List<ICanvas>();
-        
+        private readonly List<ICanvas> _canvasList = new List<ICanvas>();
+
         /// <summary>
-        /// The current scene context allowing you to unload the scene
+        /// The current scene context allowing you to unload the scene.
         /// </summary>
         protected IAsyncScene _sceneContext;
-        
-        /// <summary>
-        /// Traverse all the root objects and find all ICanvas instances
-        /// </summary>
-        /// <returns></returns>
-        private List<ICanvas> FetchActiveCanvases()
-        {
-              var canvasList = new List<ICanvas>();
-              
-              foreach (var obj in _sceneContext.associatedScene.GetRootGameObjects())
-              {
-                  var canvases = obj.GetComponentsInChildren<ICanvas>();
-
-                  canvasList.AddRange(canvases.Where(canvas => canvas != null));
-              }
-  
-              return canvasList;
-        }
 
         /// <summary>
-        /// Parsing the custom [FetchCanvas] attribute to prefetch the canvas for you
+        /// Called when the bootstrap starts. Resolves dependencies, fetches canvases, and invokes scene load events.
         /// </summary>
-        private void ResolveCanvases()
+        public virtual async Task OnBootstrapStartAsync()
         {
-            var fields = GetType().GetFields(
-                BindingFlags.Public | 
-                BindingFlags.NonPublic | 
-                BindingFlags.DeclaredOnly | 
-                BindingFlags.Instance
-            );
-                
-            foreach (var field in fields)
-            {
-                if (field.GetCustomAttribute<FetchCanvasAttribute>(false) == null)
-                {
-                    continue;
-                }
-                    
-                field.SetValue(this, FetchCanvasViaInterface(field.FieldType));
-            }
-
-        }
-        
-        private ICanvas FetchCanvasViaInterface(Type type)
-        {
-            return _canvasList.FirstOrDefault(canvas => canvas
-                .GetType()
-                .GetInterfaces()
-                .Contains(type));
-        }
-        
-        private void OnApplicationQuit()
-        {
-            OnBootstrapStop();
-        }
-    }
-
-    public abstract partial class AbstractBootstrap: IBootstrap
-    {
-        public virtual async void OnBootstrapStart()
-        {
-            // We only need to resolve dependencies when the bootstrap is allowed to run
+            // Resolve dependencies in child MonoBehaviours.
             var children = GetComponentsInChildren<MonoBehaviour>(true);
             
             foreach (var child in children)
@@ -96,48 +42,137 @@ namespace Frame.Runtime.Bootstrap
                 IBootstrap.provider?.Inject(child);
             }
 
-            _canvasList = FetchActiveCanvases();
-            
+            // Fetch and resolve canvases.
+            FetchActiveCanvases();
             ResolveCanvases();
-            
-            await SceneWillLoad();
-        }
-        
-        public virtual void OnBootstrapStop()
-        {
-            
+
+            // Invoke scene load events.
+            await SceneWillLoadAsync();
         }
 
-        public virtual async Task Unload()
+        /// <summary>
+        /// Called when the bootstrap stops. Invokes scene unload events.
+        /// </summary>
+        public virtual async Task OnBootstrapStopAsync()
         {
-            await _navigationService.Unload(_sceneContext);
+            await SceneWillUnloadAsync();
         }
 
-        public T FetchCanvas<T>() where T: ICanvas
+        /// <summary>
+        /// Unloads the current scene using the navigation service.
+        /// </summary>
+        public virtual async Task UnloadAsync()
         {
-            return _canvasList.OfType<T>()
-                .FirstOrDefault();
+            if (_navigationService != null && _sceneContext != null)
+            {
+                await _navigationService.UnloadAsync(_sceneContext);
+            }
+            else
+            {
+                Debug.LogWarning("Cannot unload scene: NavigationService or SceneContext is null.");
+            }
         }
-        
-        public virtual async Task SceneWillUnload()
-        {
-            var tasks = _canvasList
-                .Select(canvas => canvas.SceneWillUnload());
 
+        /// <summary>
+        /// Fetches a canvas of the specified type from the loaded canvases.
+        /// </summary>
+        /// <typeparam name="T">The type of canvas to fetch.</typeparam>
+        /// <returns>The canvas instance if found; otherwise, null.</returns>
+        public T FetchCanvas<T>() where T : ICanvas
+        {
+            return _canvasList.OfType<T>().FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Invoked before the scene unloads. Calls SceneWillUnload on all canvases.
+        /// </summary>
+        public virtual async Task SceneWillUnloadAsync()
+        {
+            var tasks = _canvasList.Select(canvas => canvas.SceneWillUnloadAsync());
             await Task.WhenAll(tasks);
         }
 
-        public virtual async Task SceneWillLoad()
+        /// <summary>
+        /// Invoked after the scene loads. Calls SceneWillLoad on all canvases.
+        /// </summary>
+        public virtual async Task SceneWillLoadAsync()
         {
-            var tasks = _canvasList
-                .Select(canvas => canvas.SceneWillLoad());
-            
+            var tasks = _canvasList.Select(canvas => canvas.SceneWillLoadAsync());
             await Task.WhenAll(tasks);
         }
 
+        /// <summary>
+        /// Sets the scene context.
+        /// </summary>
+        /// <param name="sceneContext">The scene context to set.</param>
         public void Load(IAsyncScene sceneContext)
         {
             _sceneContext = sceneContext;
         }
-    } 
+
+        /// <summary>
+        /// Fetches all active canvases in the scene and adds them to the canvas list.
+        /// </summary>
+        private void FetchActiveCanvases()
+        {
+            if (_sceneContext == null || !_sceneContext.associatedScene.IsValid())
+            {
+                Debug.LogError("Scene context is not valid.");
+                return;
+            }
+
+            var canvases = _sceneContext.associatedScene.GetRootGameObjects()
+                .SelectMany(obj => obj.GetComponentsInChildren<ICanvas>(true))
+                .Distinct();
+
+            _canvasList.Clear();
+            _canvasList.AddRange(canvases);
+        }
+
+        /// <summary>
+        /// Resolves canvases by setting fields marked with the FetchCanvas attribute.
+        /// </summary>
+        private void ResolveCanvases()
+        {
+            var fields = GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+            foreach (var field in fields)
+            {
+                if (field.GetCustomAttribute<FetchCanvasAttribute>(false) != null)
+                {
+                    var canvas = FetchCanvasByType(field.FieldType);
+                    if (canvas != null)
+                    {
+                        field.SetValue(this, canvas);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Canvas of type '{field.FieldType}' not found for field '{field.Name}' in '{GetType().Name}'.");
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fetches a canvas from the canvas list that matches the specified type.
+        /// </summary>
+        /// <param name="type">The type of canvas to fetch.</param>
+        /// <returns>The canvas instance if found; otherwise, null.</returns>
+        private ICanvas FetchCanvasByType(Type type)
+        {
+            return _canvasList.FirstOrDefault(type.IsInstanceOfType);
+        }
+
+        private async void OnApplicationQuit()
+        {
+            try
+            {
+                await OnBootstrapStopAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Exception during OnApplicationQuit: {ex.Message}");
+            }
+        }
+    }
 }
