@@ -13,6 +13,16 @@ namespace Frame.Runtime.Data
         {
             return await LoadAssetsAsync<T>(key);
         }
+        
+        public async Task<List<T>> LoadListAs<T>(string key)
+        {
+            var list = await LoadList<GameObject>(key);
+            
+            return list
+                .Select(gameObject => gameObject.GetComponent<T>())
+                .Where(x => x != null)
+                .ToList();
+        }
 
         public async Task<T> LoadAssetAsync<T>(string key)
         {
@@ -38,6 +48,17 @@ namespace Frame.Runtime.Data
             }
             
             return asset;
+        }
+        public async Task<T> LoadAssetAsyncAs<T>(string key) where T: class
+        {
+            var asset = await LoadAssetAsync<GameObject>(key);
+            
+            if (asset.TryGetComponent(typeof(T), out var component))
+            {
+                return component as T;
+            }
+            
+            return default;
         }
 
         public async Task<T> LoadAndInstantiateAsync<T>(string key) where T: class
