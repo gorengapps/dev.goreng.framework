@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace Frame.Runtime.Data
 {
@@ -16,6 +15,17 @@ namespace Frame.Runtime.Data
         /// The task result contains a list of loaded assets of type T.
         /// </returns>
         Task<List<T>> LoadList<T>(string key);
+        
+        /// <summary>
+        /// Loads a list of assets of type T associated with the specified key.
+        /// </summary>
+        /// <typeparam name="T">The type of assets to load.</typeparam>
+        /// <param name="key">The key associated with the assets to load.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// The task result contains a list of loaded assets of type T.
+        /// </returns>
+        Task<List<T>> LoadListAs<T>(string key);
 
         /// <summary>
         /// Loads a single asset of type T associated with the specified key.
@@ -27,6 +37,17 @@ namespace Frame.Runtime.Data
         /// The task result contains the loaded asset of type T.
         /// </returns>
         Task<T> LoadAssetAsync<T>(string key);
+
+        /// <summary>
+        /// Loads a single asset of type T associated with the specified key.
+        /// </summary>
+        /// <typeparam name="T">The type of the asset to load.</typeparam>
+        /// <param name="key">The key associated with the asset to load.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// The task result contains the loaded asset of type T.
+        /// </returns>
+        Task<T> LoadAssetAsyncAs<T>(string key) where T : class;
 
         /// <summary>
         /// Asynchronously loads an asset by key, instantiates it, and retrieves a component of type T from the instantiated GameObject.
