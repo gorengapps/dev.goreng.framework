@@ -103,9 +103,9 @@ namespace Frame.Runtime.Data
             }
 
             var assets = new List<T>();
-            var assetHandles = locations.Select(Addressables.LoadAssetAsync<T>).ToList();
-            
-            // Load each asset asynchronously
+            var assetHandles = locations
+                .Select(Addressables.LoadAssetAsync<T>)
+                .ToList();
 
             // Wait for all assets to load
             await Task.WhenAll(assetHandles.Select(handle => handle.ToTask()));
