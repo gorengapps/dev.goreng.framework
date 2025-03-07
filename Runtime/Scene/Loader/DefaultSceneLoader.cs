@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Frame.Runtime.Extensions;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 
@@ -10,7 +11,7 @@ namespace Frame.Runtime.Scene.Loader
         {
             var result = await assetReference
                 .LoadSceneAsync(mode)
-                .Task;
+                .ToTask();
             
             return result.Scene;
         }

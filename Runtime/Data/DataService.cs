@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Frame.Runtime.Extensions;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -34,7 +35,7 @@ namespace Frame.Runtime.Data
                 var handle = Addressables.LoadAssetAsync<T>(key);
 
                 // Await the completion of the asset loading
-                asset = await handle.Task;
+                asset = await handle.ToTask();
 
                 if (handle.Status != AsyncOperationStatus.Succeeded)
                 {
@@ -91,7 +92,7 @@ namespace Frame.Runtime.Data
         {
             // Load the resource locations matching the key and type T
             var locationsHandle = Addressables.LoadResourceLocationsAsync(key, typeof(T));
-            var locations = await locationsHandle.Task;
+            var locations = await locationsHandle.ToTask();
 
             // Check if any locations were found
             if (locations == null || locations.Count == 0)
@@ -107,7 +108,7 @@ namespace Frame.Runtime.Data
             // Load each asset asynchronously
 
             // Wait for all assets to load
-            await Task.WhenAll(assetHandles.Select(handle => handle.Task));
+            await Task.WhenAll(assetHandles.Select(handle => handle.ToTask()));
 
             // Collect loaded assets and handle any failures
             foreach (var handle in assetHandles)
