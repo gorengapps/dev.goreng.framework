@@ -9,7 +9,7 @@ namespace Frame.Runtime.Bootstrap {
         /// <summary>
         /// Static provider to resolve internal dependencies
         /// </summary>
-        protected static IDependencyProvider provider;
+        static protected IDependencyProvider provider;
         
         /// <summary>
         /// Binds a dependency provider to the bootstrap
@@ -21,42 +21,46 @@ namespace Frame.Runtime.Bootstrap {
         }
         
         /// <summary>
-        /// The bootstrap call that will be run after the scene has been loaded
+        /// Called when the bootstrap starts after the scene has been loaded.
         /// </summary>
-        void OnBootstrapStart();
-        
-        /// <summary>
-        /// The bootstrap call that will be run before the scene will unload
-        /// </summary>
-        void OnBootstrapStop();
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        Task OnBootstrapStartAsync();
 
         /// <summary>
-        /// Unloads the current scene
+        /// Called before the scene unloads to perform any necessary cleanup.
         /// </summary>
-        /// <returns></returns>
-        Task Unload();
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        Task OnBootstrapStopAsync();
 
         /// <summary>
-        /// Fetch an active canvas that lives in this scene scope
+        /// Unloads the current scene.
         /// </summary>
-        /// <typeparam name="T">The canvas we want to fetch</typeparam>
-        /// <returns>The canvas type if found</returns>
+        /// <returns>A task that represents the asynchronous unload operation.</returns>
+        Task UnloadAsync();
+
+        /// <summary>
+        /// Fetches an active canvas that exists within the scene scope.
+        /// </summary>
+        /// <typeparam name="T">The type of canvas to fetch.</typeparam>
+        /// <returns>The canvas instance if found; otherwise, <c>null</c>.</returns>
         T FetchCanvas<T>() where T : ICanvas;
-        
+
         /// <summary>
-        /// Scene will unload in the near future 
+        /// Called when the scene is about to unload in the near future.
         /// </summary>
-        Task SceneWillUnload();
-        
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        Task SceneWillUnloadAsync();
+
         /// <summary>
-        /// Scene will load in the near future 
+        /// Called when the scene is about to load in the near future.
         /// </summary>
-        Task SceneWillLoad();
-        
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        Task SceneWillLoadAsync();
+
         /// <summary>
-        /// Called whenever the scene is done loading and the bootstrap can be run
+        /// Called when the scene has finished loading, allowing the bootstrap to run.
         /// </summary>
-        /// <param name="sceneContext"></param>
+        /// <param name="sceneContext">The context of the loaded scene.</param>
         void Load(IAsyncScene sceneContext);
     }
 }

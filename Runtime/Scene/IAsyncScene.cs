@@ -1,44 +1,55 @@
 using System.Threading.Tasks;
 using Frame.Runtime.Bootstrap;
-using Framework.Loop;
+using Frame.Runtime.Scene.Loader;
 
 namespace Frame.Runtime.Scene
 {
     public interface IAsyncScene
     {
-        public string sceneType { get; }
-        
-        public UnityEngine.SceneManagement.Scene  associatedScene { get; }
+        /// <summary>
+        /// Loader that will be used
+        /// </summary>
+        internal static ISceneLoader loader = new DefaultSceneLoader();
         
         /// <summary>
-        /// Preloads the scene without activating it
-        /// This is useful for scenes that want to fade in or fade out a loading screen 
+        /// Updates the ISceneLoader that will be used internally
         /// </summary>
-        public Task Preload();
+        /// <param name="sceneLoader"></param>
+        public static void SetSceneLoader(ISceneLoader sceneLoader)
+        {
+            IAsyncScene.loader = sceneLoader;
+        }
+        
+        /// <summary>
+        /// Gets the type identifier of the scene.
+        /// </summary>
+        public string sceneType { get; }
 
         /// <summary>
-        /// Called before the scene will be unloaded
+        /// Gets the associated Unity scene.
         /// </summary>
-        public Task SceneWillUnload();
-        
+        public UnityEngine.SceneManagement.Scene associatedScene { get; }
+
         /// <summary>
-        /// Allows you to specify when the scene is done loading
+        /// Called before the scene will be unloaded to perform any necessary cleanup.
         /// </summary>
-        public Task WhenDone(IRunLoop runner);
-        
+        /// <returns>A task that represents the asynchronous unload operation.</returns>
+        public Task SceneWillUnloadAsync();
+
         /// <summary>
-        /// Continues the scene that was preloaded
+        /// Loads the scene asynchronously and optionally sets it as the active scene.
         /// </summary>
-        public Task Continue(IRunLoop runner);
-        
+        /// <param name="setActive">If set to <c>true</c>, the loaded scene will be set as the active scene.</param>
+        /// <returns>
+        /// A task that represents the asynchronous load operation.
+        /// The task result contains the bootstrap instance associated with the loaded scene.
+        /// </returns>
+        public Task<IBootstrap> LoadAsync(bool setActive = true);
+
         /// <summary>
-        /// Loads the scene and activates it immediately
+        /// Unloads the scene asynchronously.
         /// </summary>
-        public Task<IBootstrap> Load(bool setActive = true);
-        
-        /// <summary>
-        /// Unloads a scene
-        /// </summary>
-        public Task Unload();
+        /// <returns>A task that represents the asynchronous unload operation.</returns>
+        public Task UnloadAsync();
     }
 }
