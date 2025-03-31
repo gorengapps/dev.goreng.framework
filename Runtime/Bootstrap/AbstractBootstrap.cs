@@ -28,6 +28,11 @@ namespace Frame.Runtime.Bootstrap
         /// The current scene context allowing you to unload the scene.
         /// </summary>
         protected IAsyncScene _sceneContext;
+        
+        /// <summary>
+        /// A bool which signals if a bootstrap has been started yet.
+        /// </summary>
+        private bool _initialized;
 
         /// <summary>
         /// Called when the bootstrap starts. Resolves dependencies, fetches canvases, and invokes scene load events.
@@ -48,6 +53,8 @@ namespace Frame.Runtime.Bootstrap
 
             // Invoke scene load events.
             await SceneWillLoadAsync();
+            
+            _initialized = true;
         }
 
         /// <summary>
@@ -56,6 +63,16 @@ namespace Frame.Runtime.Bootstrap
         public virtual async Task OnBootstrapStopAsync()
         {
             await SceneWillUnloadAsync();
+        }
+
+        public virtual async Task OnBootstrapUpdateAsync()
+        {
+            
+        }
+
+        public virtual async Task OnBootstrapLateUpdateAsync()
+        {
+            
         }
 
         /// <summary>
@@ -109,7 +126,7 @@ namespace Frame.Runtime.Bootstrap
         {
             _sceneContext = sceneContext;
         }
-
+        
         /// <summary>
         /// Fetches all active canvases in the scene and adds them to the canvas list.
         /// </summary>
@@ -161,6 +178,26 @@ namespace Frame.Runtime.Bootstrap
         private ICanvas FetchCanvasByType(Type type)
         {
             return _canvasList.FirstOrDefault(type.IsInstanceOfType);
+        }
+        
+        private async void Update()
+        {
+            if (!_initialized)
+            {
+                return;
+            }
+
+            await OnBootstrapUpdateAsync();
+        }
+
+        private async void LateUpdate()
+        {
+            if (!_initialized)
+            {
+                return;
+            }
+
+            await OnBootstrapLateUpdateAsync();
         }
 
         private async void OnApplicationQuit()
