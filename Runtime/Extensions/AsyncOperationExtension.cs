@@ -17,7 +17,7 @@ namespace Frame.Runtime.Extensions
             #if UNITY_WEBGL
                 return new CoroutineTask<T>(task).RunAsync();
             #else
-                return task.Task;
+            return task.Task;
             #endif
         }
     }

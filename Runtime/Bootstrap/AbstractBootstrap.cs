@@ -37,7 +37,7 @@ namespace Frame.Runtime.Bootstrap
         /// <summary>
         /// Called when the bootstrap starts. Resolves dependencies, fetches canvases, and invokes scene load events.
         /// </summary>
-        public virtual async Task OnBootstrapStartAsync()
+        public virtual async Awaitable OnBootstrapStartAsync()
         {
             // Resolve dependencies in child MonoBehaviours.
             var children = GetComponentsInChildren<MonoBehaviour>(true);
@@ -60,25 +60,25 @@ namespace Frame.Runtime.Bootstrap
         /// <summary>
         /// Called when the bootstrap stops. Invokes scene unload events.
         /// </summary>
-        public virtual async Task OnBootstrapStopAsync()
+        public virtual async Awaitable OnBootstrapStopAsync()
         {
             await SceneWillUnloadAsync();
         }
 
-        public virtual async Task OnBootstrapUpdateAsync()
+        public virtual Awaitable OnBootstrapUpdateAsync()
         {
-            
+            return Awaitable.NextFrameAsync();
         }
 
-        public virtual async Task OnBootstrapLateUpdateAsync()
+        public virtual Awaitable OnBootstrapLateUpdateAsync()
         {
-            
+            return Awaitable.NextFrameAsync();
         }
 
         /// <summary>
         /// Unloads the current scene using the navigation service.
         /// </summary>
-        public virtual async Task UnloadAsync()
+        public virtual async Awaitable UnloadAsync()
         {
             if (_navigationService != null && _sceneContext != null)
             {
@@ -103,7 +103,7 @@ namespace Frame.Runtime.Bootstrap
         /// <summary>
         /// Invoked before the scene unloads. Calls SceneWillUnload on all canvases.
         /// </summary>
-        public virtual async Task SceneWillUnloadAsync()
+        public virtual async Awaitable SceneWillUnloadAsync()
         {
             var tasks = _canvasList.Select(canvas => canvas.SceneWillUnloadAsync());
             await Task.WhenAll(tasks);
@@ -112,7 +112,7 @@ namespace Frame.Runtime.Bootstrap
         /// <summary>
         /// Invoked after the scene loads. Calls SceneWillLoad on all canvases.
         /// </summary>
-        public virtual async Task SceneWillLoadAsync()
+        public virtual async Awaitable SceneWillLoadAsync()
         {
             var tasks = _canvasList.Select(canvas => canvas.SceneWillLoadAsync());
             await Task.WhenAll(tasks);

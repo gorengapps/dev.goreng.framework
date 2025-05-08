@@ -20,7 +20,7 @@ namespace Frame.Runtime.Navigation
         private Dictionary<string, Type> _sceneMapping = new Dictionary<string, Type>();
 
         private readonly IDataService _dataService;
-        private Task _initialiseTask;
+        private Awaitable _initialiseTask;
         private readonly object _initialiseLock = new object();
 
         public NavigationService(IDataService dataService)
@@ -28,7 +28,7 @@ namespace Frame.Runtime.Navigation
             _dataService = dataService;
         }
 
-        public Task Initialise()
+        public Awaitable Initialise()
         {
             if (_initialiseTask != null)
             {
@@ -43,7 +43,7 @@ namespace Frame.Runtime.Navigation
             return _initialiseTask;
         }
 
-        private async Task InitialiseInternal()
+        private async Awaitable InitialiseInternal()
         {
             var scenesList = await _dataService.LoadList<IAsyncScene>(_scenesKey);
             
@@ -79,7 +79,7 @@ namespace Frame.Runtime.Navigation
             return _scenes.TryGetValue(typeof(T), out scene);
         }
         
-        public async Task<T> ShowSceneAsync<T>(bool setActive = false) where T : class, IBootstrap
+        public async Awaitable<T> ShowSceneAsync<T>(bool setActive = false) where T : class, IBootstrap
         {
             await Initialise();
 
@@ -109,7 +109,7 @@ namespace Frame.Runtime.Navigation
             return _openScreens.Values.OfType<T>().FirstOrDefault();
         }
 
-        public async Task UnloadAsync(IAsyncScene sceneHandle)
+        public async Awaitable UnloadAsync(IAsyncScene sceneHandle)
         {
             if (sceneHandle == null)
             {

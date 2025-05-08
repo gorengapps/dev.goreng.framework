@@ -22,7 +22,7 @@ namespace Frame.Runtime.Scene
         /// Internally loads the scene, abstracts away hard logic
         /// </summary>
         /// <param name="setActiveScene">Flag that allows you to set the scene as a main scene</param>
-        private async Task InternalLoad(bool setActiveScene)
+        private async Awaitable InternalLoad(bool setActiveScene)
         {
             if (_sceneReference.IsValid())
             {
@@ -40,7 +40,7 @@ namespace Frame.Runtime.Scene
         /// <summary>
         /// Unloads the level from the hierarchy
         /// </summary>
-        private async Task UnloadScene()
+        private async Awaitable UnloadScene()
         {
             if (!_sceneReference.IsValid())
             {
@@ -54,7 +54,7 @@ namespace Frame.Runtime.Scene
         /// Runs the bootstrap in the loaded scene
         /// </summary>
         /// <param name="scene">The scene we want to start our bootstrap in</param>
-        private async Task<IBootstrap> RunBootstrap(UnityEngine.SceneManagement.Scene scene)
+        private async Awaitable<IBootstrap> RunBootstrap(UnityEngine.SceneManagement.Scene scene)
         {
             var bootstrap = FindObjectsByType<AbstractBootstrap>(FindObjectsSortMode.None)
                 .FirstOrDefault(x => x.gameObject.scene == scene);
@@ -81,7 +81,7 @@ namespace Frame.Runtime.Scene
 
     public partial class AsyncScene: IAsyncScene
     {
-        public async Task SceneWillUnloadAsync()
+        public async Awaitable SceneWillUnloadAsync()
         {
             if (_cachedBootstrap == null)
             {
@@ -91,14 +91,14 @@ namespace Frame.Runtime.Scene
             await _cachedBootstrap.SceneWillUnloadAsync();
         }
 
-        public async Task<IBootstrap> LoadAsync(bool setActive = true)
+        public async Awaitable<IBootstrap> LoadAsync(bool setActive = true)
         {
             await InternalLoad(setActive);
             _cachedBootstrap = await RunBootstrap(_loadedScene);
             return _cachedBootstrap;
         }
 
-        public async Task UnloadAsync()
+        public async Awaitable UnloadAsync()
         {
             if (_cachedBootstrap == null)
             {
