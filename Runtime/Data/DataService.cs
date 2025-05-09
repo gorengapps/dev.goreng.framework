@@ -10,14 +10,14 @@ namespace Frame.Runtime.Data
 {
     public class DataService : IDataService
     {
-        public async Awaitable<List<T>> LoadList<T>(string key)
+        public async Awaitable<List<T>> LoadListAsync<T>(string key)
         {
             return await LoadAssetsAsync<T>(key);
         }
         
-        public async Awaitable<List<T>> LoadListAs<T>(string key)
+        public async Awaitable<List<T>> LoadListAsyncAs<T>(string key)
         {
-            var list = await LoadList<GameObject>(key);
+            var list = await LoadListAsync<GameObject>(key);
             
             return list
                 .Select(gameObject => gameObject.GetComponent<T>())

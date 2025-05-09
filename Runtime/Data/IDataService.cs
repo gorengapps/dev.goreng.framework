@@ -14,7 +14,7 @@ namespace Frame.Runtime.Data
         /// A task that represents the asynchronous operation.
         /// The task result contains a list of loaded assets of type T.
         /// </returns>
-        Awaitable<List<T>> LoadList<T>(string key);
+        Awaitable<List<T>> LoadListAsync<T>(string key);
         
         /// <summary>
         /// Loads a list of assets of type T associated with the specified key.
@@ -25,7 +25,7 @@ namespace Frame.Runtime.Data
         /// A task that represents the asynchronous operation.
         /// The task result contains a list of loaded assets of type T.
         /// </returns>
-        Awaitable<List<T>> LoadListAs<T>(string key);
+        Awaitable<List<T>> LoadListAsyncAs<T>(string key);
 
         /// <summary>
         /// Loads a single asset of type T associated with the specified key.

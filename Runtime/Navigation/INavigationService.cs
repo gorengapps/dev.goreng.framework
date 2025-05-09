@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Frame.Runtime.Bootstrap;
 using Frame.Runtime.Scene;
@@ -14,7 +16,7 @@ namespace Frame.Runtime.Navigation
         /// Initialises the navigation service
         /// </summary>
         /// <returns>A task that represents the asynchronous navigation operation.</returns>
-        Awaitable Initialise();
+        Awaitable Initialise(Dictionary<string, Type> sceneMapping);
         
         /// <summary>
         /// Shows a supplementary scene on top of the active scene and returns a handle to its bootstrap instance.
