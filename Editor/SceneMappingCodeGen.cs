@@ -9,15 +9,6 @@ using Frame.Runtime.Bootstrap;
 
 namespace Frame.Runtime
 {
-    [InitializeOnLoad]
-    public static class AutoSceneMappingGeneration
-    {
-        static AutoSceneMappingGeneration()
-        {
-            EditorApplication.delayCall += SceneMappingCodeGen.GenerateFromTemplate;
-        }
-    }
-    
    public static class SceneMappingCodeGen 
    {
         private const string _templatePath = "Packages/dev.goreng.frame/Editor/Templates/SceneMapping.cs.template";
@@ -44,13 +35,16 @@ namespace Frame.Runtime
                             && t.GetCustomAttribute<SceneAttribute>() != null)
                 .Select(t =>
                 {
+
+                    var type = t.GetInterfaces()
+                        .FirstOrDefault(x => x != typeof(IBootstrap)) ?? t;
+                    
                     var sceneName = t.GetCustomAttribute<SceneAttribute>().sceneName;
-                    return $"{{ \"{sceneName}\", typeof({t.FullName}) }},\n";
+                    return $"{{ \"{sceneName}\", typeof({type.FullName}) }},\n";
                 })
                 .OrderBy(line => line)
                 .ToList();
-
-
+            
             var generated = string.Join(Environment.NewLine,    entries);
             var outputText = template.Replace("%@", generated);
             
