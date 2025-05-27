@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Frame.Runtime.Bootstrap;
 using Frame.Runtime.Scene.Loader;
+using UnityEngine;
 
 namespace Frame.Runtime.Scene
 {
@@ -34,7 +35,7 @@ namespace Frame.Runtime.Scene
         /// Called before the scene will be unloaded to perform any necessary cleanup.
         /// </summary>
         /// <returns>A task that represents the asynchronous unload operation.</returns>
-        public Task SceneWillUnloadAsync();
+        public Awaitable SceneWillUnloadAsync();
 
         /// <summary>
         /// Loads the scene asynchronously and optionally sets it as the active scene.
@@ -44,12 +45,12 @@ namespace Frame.Runtime.Scene
         /// A task that represents the asynchronous load operation.
         /// The task result contains the bootstrap instance associated with the loaded scene.
         /// </returns>
-        public Task<IBootstrap> LoadAsync(bool setActive = true);
+        public Awaitable<IBootstrap> LoadAsync(bool setActive = true);
 
         /// <summary>
         /// Unloads the scene asynchronously.
         /// </summary>
         /// <returns>A task that represents the asynchronous unload operation.</returns>
-        public Task UnloadAsync();
+        public Awaitable UnloadAsync();
     }
 }

@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Frame.Runtime.Canvas;
 using Frame.Runtime.Scene;
 using Framework.DI.Provider;
+using UnityEngine;
 
 namespace Frame.Runtime.Bootstrap {
     public interface IBootstrap
@@ -9,7 +10,7 @@ namespace Frame.Runtime.Bootstrap {
         /// <summary>
         /// Static provider to resolve internal dependencies
         /// </summary>
-        static protected IDependencyProvider provider;
+        protected static IDependencyProvider provider;
         
         /// <summary>
         /// Binds a dependency provider to the bootstrap
@@ -24,19 +25,19 @@ namespace Frame.Runtime.Bootstrap {
         /// Called when the bootstrap starts after the scene has been loaded.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task OnBootstrapStartAsync();
+        Awaitable OnBootstrapStartAsync();
 
         /// <summary>
         /// Called before the scene unloads to perform any necessary cleanup.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task OnBootstrapStopAsync();
+        Awaitable OnBootstrapStopAsync();
 
         /// <summary>
         /// Unloads the current scene.
         /// </summary>
         /// <returns>A task that represents the asynchronous unload operation.</returns>
-        Task UnloadAsync();
+        Awaitable UnloadAsync();
 
         /// <summary>
         /// Fetches an active canvas that exists within the scene scope.
@@ -49,13 +50,13 @@ namespace Frame.Runtime.Bootstrap {
         /// Called when the scene is about to unload in the near future.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task SceneWillUnloadAsync();
+        Awaitable SceneWillUnloadAsync();
 
         /// <summary>
         /// Called when the scene is about to load in the near future.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task SceneWillLoadAsync();
+        Awaitable SceneWillLoadAsync();
 
         /// <summary>
         /// Called when the scene has finished loading, allowing the bootstrap to run.

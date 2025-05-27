@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Frame.Runtime.Data
 {
@@ -14,7 +14,7 @@ namespace Frame.Runtime.Data
         /// A task that represents the asynchronous operation.
         /// The task result contains a list of loaded assets of type T.
         /// </returns>
-        Task<List<T>> LoadList<T>(string key);
+        Awaitable<List<T>> LoadListAsync<T>(string key);
         
         /// <summary>
         /// Loads a list of assets of type T associated with the specified key.
@@ -25,7 +25,7 @@ namespace Frame.Runtime.Data
         /// A task that represents the asynchronous operation.
         /// The task result contains a list of loaded assets of type T.
         /// </returns>
-        Task<List<T>> LoadListAs<T>(string key);
+        Awaitable<List<T>> LoadListAsyncAs<T>(string key);
 
         /// <summary>
         /// Loads a single asset of type T associated with the specified key.
@@ -36,7 +36,7 @@ namespace Frame.Runtime.Data
         /// A task that represents the asynchronous operation.
         /// The task result contains the loaded asset of type T.
         /// </returns>
-        Task<T> LoadAssetAsync<T>(string key);
+        Awaitable<T> LoadAssetAsync<T>(string key);
 
         /// <summary>
         /// Loads a single asset of type T associated with the specified key.
@@ -47,7 +47,7 @@ namespace Frame.Runtime.Data
         /// A task that represents the asynchronous operation.
         /// The task result contains the loaded asset of type T.
         /// </returns>
-        Task<T> LoadAssetAsyncAs<T>(string key) where T : class;
+        Awaitable<T> LoadAssetAsyncAs<T>(string key) where T : class;
 
         /// <summary>
         /// Asynchronously loads an asset by key, instantiates it, and retrieves a component of type T from the instantiated GameObject.
@@ -61,6 +61,6 @@ namespace Frame.Runtime.Data
         /// The task result contains the component of type T from the instantiated asset.
         /// Returns <c>default</c> if the asset fails to load, instantiate, or does not contain the component.
         /// </returns>
-        Task<T> LoadAndInstantiateAsync<T>(string key) where T: class;
+        Awaitable<T> LoadAndInstantiateAsync<T>(string key) where T: class;
     }
 }
