@@ -20,7 +20,7 @@ namespace Frame.Runtime.Navigation
         private Dictionary<string, Type> _sceneMapping = new Dictionary<string, Type>();
 
         private readonly IDataService _dataService;
-        private Task _initialiseTask;
+        private Awaitable _initialiseTask;
         private readonly object _initialiseLock = new object();
 
         public NavigationService(IDataService dataService)
@@ -28,7 +28,7 @@ namespace Frame.Runtime.Navigation
             _dataService = dataService;
         }
 
-        public Task Initialise()
+        public Awaitable Initialise(Dictionary<string, Type> sceneMapping)
         {
             if (_initialiseTask != null)
             {
@@ -37,37 +37,28 @@ namespace Frame.Runtime.Navigation
 
             lock (_initialiseLock)
             {
-                _initialiseTask = InitialiseInternal();
+                _initialiseTask = InitialiseInternal(sceneMapping);
             }
 
             return _initialiseTask;
         }
 
-        private async Task InitialiseInternal()
+        private async Awaitable InitialiseInternal(Dictionary<string, Type> sceneMapping)
         {
-            var scenesList = await _dataService.LoadList<IAsyncScene>(_scenesKey);
+            var scenesList = await _dataService.LoadListAsync<IAsyncScene>(_scenesKey);
             
             if (scenesList == null)
             {
                 Debug.LogError("Failed to load scenes from data service.");
                 return;
             }
-            
-            _scenes.Clear();
 
-            var validAssemblies = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(x => !x.FullName.Contains("Unity") && !x.FullName.Contains("System"));
-            
-            _sceneMapping = validAssemblies
-                .SelectMany(x => x.GetTypes()) // Get all types
-                .Where(t => typeof(IBootstrap).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract) // Find all IBootstraps
-                .Select(t => new { Type = t, Attribute = t.GetCustomAttribute<SceneAttribute>() }) // Get all IBootstrap where we have a scene attribute
-                .Where(x => x.Attribute != null) // Filter out empty ones
-                .ToDictionary(x => x.Attribute.sceneName, x => x.Type.GetInterfaces().FirstOrDefault(t => t != typeof(IBootstrap)) ?? x.Type);
+            _sceneMapping = sceneMapping;
+            _scenes.Clear();
             
             foreach (var scene in scenesList.Where(scene => scene != null && !string.IsNullOrEmpty(scene.sceneType)))
             {
-                if (_sceneMapping.TryGetValue(scene.sceneType, out var bootstrap))
+                if (sceneMapping.TryGetValue(scene.sceneType, out var bootstrap))
                 {
                     _scenes[bootstrap] = scene;
                 }
@@ -79,10 +70,8 @@ namespace Frame.Runtime.Navigation
             return _scenes.TryGetValue(typeof(T), out scene);
         }
         
-        public async Task<T> ShowSceneAsync<T>(bool setActive = false) where T : class, IBootstrap
+        public async Awaitable<T> ShowSceneAsync<T>(bool setActive = false) where T : class, IBootstrap
         {
-            await Initialise();
-
             if (_openScreens.TryGetValue(typeof(T), out var screen))
             {
                 return (T)screen;
@@ -109,7 +98,7 @@ namespace Frame.Runtime.Navigation
             return _openScreens.Values.OfType<T>().FirstOrDefault();
         }
 
-        public async Task UnloadAsync(IAsyncScene sceneHandle)
+        public async Awaitable UnloadAsync(IAsyncScene sceneHandle)
         {
             if (sceneHandle == null)
             {

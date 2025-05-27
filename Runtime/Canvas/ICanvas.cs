@@ -11,7 +11,7 @@ namespace Frame.Runtime.Canvas
         /// <summary>
         /// Static provider to resolve internal dependencies
         /// </summary>
-        static protected IDependencyProvider provider;
+        protected static IDependencyProvider provider;
         
         /// <summary>
         /// Binds a dependency provider to the bootstrap

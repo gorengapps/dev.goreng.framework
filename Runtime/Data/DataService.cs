@@ -10,14 +10,14 @@ namespace Frame.Runtime.Data
 {
     public class DataService : IDataService
     {
-        public async Task<List<T>> LoadList<T>(string key)
+        public async Awaitable<List<T>> LoadListAsync<T>(string key)
         {
             return await LoadAssetsAsync<T>(key);
         }
         
-        public async Task<List<T>> LoadListAs<T>(string key)
+        public async Awaitable<List<T>> LoadListAsyncAs<T>(string key)
         {
-            var list = await LoadList<GameObject>(key);
+            var list = await LoadListAsync<GameObject>(key);
             
             return list
                 .Select(gameObject => gameObject.GetComponent<T>())
@@ -25,7 +25,7 @@ namespace Frame.Runtime.Data
                 .ToList();
         }
 
-        public async Task<T> LoadAssetAsync<T>(string key)
+        public async Awaitable<T> LoadAssetAsync<T>(string key)
         {
             T asset = default;
 
@@ -50,7 +50,7 @@ namespace Frame.Runtime.Data
             
             return asset;
         }
-        public async Task<T> LoadAssetAsyncAs<T>(string key) where T: class
+        public async Awaitable<T> LoadAssetAsyncAs<T>(string key) where T: class
         {
             var asset = await LoadAssetAsync<GameObject>(key);
             
@@ -62,7 +62,7 @@ namespace Frame.Runtime.Data
             return default;
         }
 
-        public async Task<T> LoadAndInstantiateAsync<T>(string key) where T: class
+        public async Awaitable<T> LoadAndInstantiateAsync<T>(string key) where T: class
         {
             try
             {
@@ -88,7 +88,7 @@ namespace Frame.Runtime.Data
             }
         }
 
-        private async Task<List<T>> LoadAssetsAsync<T>(string key)
+        private async Awaitable<List<T>> LoadAssetsAsync<T>(string key)
         {
             // Load the resource locations matching the key and type T
             var locationsHandle = Addressables.LoadResourceLocationsAsync(key, typeof(T));
@@ -108,8 +108,10 @@ namespace Frame.Runtime.Data
                 .ToList();
 
             // Wait for all assets to load
-            await Task.WhenAll(assetHandles.Select(handle => handle.ToTask()));
+            var task = Task.WhenAll(assetHandles.Select(handle => handle.ToTask()));
 
+            await task.AsAwaitable();
+            
             // Collect loaded assets and handle any failures
             foreach (var handle in assetHandles)
             {

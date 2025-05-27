@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 
@@ -12,6 +13,6 @@ namespace Frame.Runtime.Scene.Loader
         /// <param name="assetReference">The asset that is the to be loaded scene</param>
         /// <param name="mode">Loading mode of the scene</param>
         /// <returns></returns>
-        public Task<UnityEngine.SceneManagement.Scene> LoadScene(AssetReference assetReference, LoadSceneMode mode = LoadSceneMode.Additive);
+        public Awaitable<UnityEngine.SceneManagement.Scene> LoadScene(AssetReference assetReference, LoadSceneMode mode = LoadSceneMode.Additive);
     }
 }
