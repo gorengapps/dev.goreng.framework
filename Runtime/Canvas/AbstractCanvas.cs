@@ -1,18 +1,17 @@
-﻿using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Frame.Runtime.Canvas
 {
     public class AbstractCanvas: MonoBehaviour, ICanvas
     {
-        public virtual Task SceneWillUnloadAsync()
+        public virtual Awaitable SceneWillUnloadAsync()
         {
-            return Task.CompletedTask;
+            return Awaitable.NextFrameAsync();
         }
 
-        public virtual Task SceneWillLoadAsync()
+        public virtual Awaitable SceneWillLoadAsync()
         {
-            return Task.CompletedTask;
+            return Awaitable.NextFrameAsync();
         }
     }
 }
