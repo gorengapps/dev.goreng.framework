@@ -1,5 +1,5 @@
-using System.Threading.Tasks;
 using Framework.DI.Provider;
+using UnityEngine;
 
 namespace Frame.Runtime.Canvas
 {
@@ -27,13 +27,13 @@ namespace Frame.Runtime.Canvas
         /// Perform any necessary cleanup operations here.
         /// </summary>
         /// <returns>A task that represents the asynchronous unload operation.</returns>
-        Task SceneWillUnloadAsync();
+        Awaitable SceneWillUnloadAsync();
 
         /// <summary>
         /// Signals that the scene will be loaded.
         /// Perform any necessary initialization operations here.
         /// </summary>
         /// <returns>A task that represents the asynchronous load operation.</returns>
-        Task SceneWillLoadAsync();
+        Awaitable SceneWillLoadAsync();
     }
 }

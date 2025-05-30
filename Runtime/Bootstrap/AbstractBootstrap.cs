@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Frame.Runtime.Canvas;
+using Frame.Runtime.Extensions;
 using Frame.Runtime.Navigation;
 using Frame.Runtime.Scene;
 using Framework.DI;
@@ -105,7 +106,9 @@ namespace Frame.Runtime.Bootstrap
         /// </summary>
         public virtual async Awaitable SceneWillUnloadAsync()
         {
-            var tasks = _canvasList.Select(canvas => canvas.SceneWillUnloadAsync());
+            var tasks = _canvasList
+                .Select(canvas => canvas.SceneWillUnloadAsync().AsTask());
+            
             await Task.WhenAll(tasks);
         }
 
@@ -114,7 +117,9 @@ namespace Frame.Runtime.Bootstrap
         /// </summary>
         public virtual async Awaitable SceneWillLoadAsync()
         {
-            var tasks = _canvasList.Select(canvas => canvas.SceneWillLoadAsync());
+            var tasks = _canvasList
+                .Select(canvas => canvas.SceneWillLoadAsync().AsTask());
+            
             await Task.WhenAll(tasks);
         }
 
