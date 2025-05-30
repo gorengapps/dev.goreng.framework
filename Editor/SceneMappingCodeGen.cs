@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using System;
 using UnityEngine;
 using System.IO;
@@ -61,5 +63,5 @@ namespace Frame.Runtime
             AssetDatabase.Refresh();
         } 
    }
-
 }
+#endif
