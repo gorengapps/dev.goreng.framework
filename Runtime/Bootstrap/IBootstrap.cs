@@ -44,7 +44,7 @@ namespace Frame.Runtime.Bootstrap {
         /// </summary>
         /// <typeparam name="T">The type of canvas to fetch.</typeparam>
         /// <returns>The canvas instance if found; otherwise, <c>null</c>.</returns>
-        T FetchCanvas<T>() where T : ICanvas;
+        T FetchView<T>() where T : IView;
 
         /// <summary>
         /// Called when the scene is about to unload in the near future.
