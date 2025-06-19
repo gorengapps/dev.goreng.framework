@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Threading.Tasks;
 using Frame.Runtime.Bootstrap;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -59,7 +58,7 @@ namespace Frame.Runtime.Scene
             var bootstrap = FindObjectsByType<AbstractBootstrap>(FindObjectsSortMode.None)
                 .FirstOrDefault(x => x.gameObject.scene == scene);
 
-            if (bootstrap == null)
+            if (!bootstrap)
             {
                 return null;
             }
@@ -85,6 +84,9 @@ namespace Frame.Runtime.Scene
         {
             if (_cachedBootstrap == null)
             {
+                Debug.LogError("Attempting to unload scene without a bootstrap instance. " +
+                               "this can happen if you are you awaiting a long running task inside " +
+                               "the OnBootstrapStartAsync");
                 return;
             }
             
@@ -102,6 +104,9 @@ namespace Frame.Runtime.Scene
         {
             if (_cachedBootstrap == null)
             {
+                Debug.LogError("Attempting to unload scene without a bootstrap instance. " +
+                               "this can happen if you are you awaiting a long running task inside " +
+                               "the OnBootstrapStartAsync");
                 return;
             }
             

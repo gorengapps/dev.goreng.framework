@@ -8,6 +8,7 @@ using Frame.Runtime.Extensions;
 using Frame.Runtime.Navigation;
 using Frame.Runtime.Scene;
 using Framework.DI;
+using Framework.Events;
 using UnityEngine;
 
 namespace Frame.Runtime.Bootstrap
@@ -17,13 +18,17 @@ namespace Frame.Runtime.Bootstrap
         /// <summary>
         /// The navigation service that allows you to navigate easily from and to scenes.
         /// </summary>
-        [InjectField]
-        protected INavigationService _navigationService;
+        [InjectField] protected INavigationService _navigationService;
 
         /// <summary>
-        /// Internal list that holds references to all the loaded ICanvas instances in the scene.
+        /// Can hold relevant subscriptions
         /// </summary>
-        private readonly List<ICanvas> _canvasList = new List<ICanvas>();
+        protected readonly DisposeBag _disposeBag = new DisposeBag();
+        
+        /// <summary>
+        /// Internal list that holds references to all the loaded IView instances in the scene.
+        /// </summary>
+        private readonly List<IView> _viewList = new List<IView>();
 
         /// <summary>
         /// The current scene context allowing you to unload the scene.
@@ -49,8 +54,13 @@ namespace Frame.Runtime.Bootstrap
             }
 
             // Fetch and resolve canvases.
-            FetchActiveCanvases();
-            ResolveCanvases();
+            FetchActiveViews();
+            ResolveViews();
+            
+            foreach (var view in _viewList)
+            {
+                IBootstrap.provider?.Inject(view);
+            }
 
             // Invoke scene load events.
             await SceneWillLoadAsync();
@@ -63,17 +73,18 @@ namespace Frame.Runtime.Bootstrap
         /// </summary>
         public virtual async Awaitable OnBootstrapStopAsync()
         {
+            _disposeBag.Dispose(); 
             await SceneWillUnloadAsync();
         }
 
         public virtual Awaitable OnBootstrapUpdateAsync()
         {
-            return Awaitable.NextFrameAsync();
+            return Awaitable.EndOfFrameAsync();
         }
 
         public virtual Awaitable OnBootstrapLateUpdateAsync()
         {
-            return Awaitable.NextFrameAsync();
+            return Awaitable.EndOfFrameAsync();
         }
 
         /// <summary>
@@ -92,13 +103,13 @@ namespace Frame.Runtime.Bootstrap
         }
 
         /// <summary>
-        /// Fetches a canvas of the specified type from the loaded canvases.
+        /// Fetches a view of the specified type from the loaded views.
         /// </summary>
-        /// <typeparam name="T">The type of canvas to fetch.</typeparam>
+        /// <typeparam name="T">The type of view to fetch.</typeparam>
         /// <returns>The canvas instance if found; otherwise, null.</returns>
-        public T FetchCanvas<T>() where T : ICanvas
+        public T FetchView<T>() where T : IView
         {
-            return _canvasList.OfType<T>().FirstOrDefault();
+            return _viewList.OfType<T>().FirstOrDefault();
         }
 
         /// <summary>
@@ -106,8 +117,8 @@ namespace Frame.Runtime.Bootstrap
         /// </summary>
         public virtual async Awaitable SceneWillUnloadAsync()
         {
-            var tasks = _canvasList
-                .Select(canvas => canvas.SceneWillUnloadAsync().AsTask());
+            var tasks = _viewList
+                .Select(canvas => canvas.ViewWillUnloadAsync().AsTask());
             
             await Task.WhenAll(tasks);
         }
@@ -117,8 +128,8 @@ namespace Frame.Runtime.Bootstrap
         /// </summary>
         public virtual async Awaitable SceneWillLoadAsync()
         {
-            var tasks = _canvasList
-                .Select(canvas => canvas.SceneWillLoadAsync().AsTask());
+            var tasks = _viewList
+                .Select(canvas => canvas.ViewWillLoadAsync().AsTask());
             
             await Task.WhenAll(tasks);
         }
@@ -135,7 +146,7 @@ namespace Frame.Runtime.Bootstrap
         /// <summary>
         /// Fetches all active canvases in the scene and adds them to the canvas list.
         /// </summary>
-        private void FetchActiveCanvases()
+        private void FetchActiveViews()
         {
             if (_sceneContext == null || !_sceneContext.associatedScene.IsValid())
             {
@@ -143,34 +154,37 @@ namespace Frame.Runtime.Bootstrap
                 return;
             }
 
-            var canvases = _sceneContext.associatedScene.GetRootGameObjects()
-                .SelectMany(obj => obj.GetComponentsInChildren<ICanvas>(true))
+            var views = _sceneContext.associatedScene.GetRootGameObjects()
+                .SelectMany(obj => obj.GetComponentsInChildren<IView>(true))
                 .Distinct();
 
-            _canvasList.Clear();
-            _canvasList.AddRange(canvases);
+            _viewList.Clear();
+            _viewList.AddRange(views);
         }
 
         /// <summary>
         /// Resolves canvases by setting fields marked with the FetchCanvas attribute.
         /// </summary>
-        private void ResolveCanvases()
+        private void ResolveViews()
         {
             var fields = GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
             foreach (var field in fields)
             {
-                if (field.GetCustomAttribute<FetchCanvasAttribute>(false) != null)
+                if (field.GetCustomAttribute<FetchViewAttribute>(false) == null)
                 {
-                    var canvas = FetchCanvasByType(field.FieldType);
-                    if (canvas != null)
-                    {
-                        field.SetValue(this, canvas);
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"Canvas of type '{field.FieldType}' not found for field '{field.Name}' in '{GetType().Name}'.");
-                    }
+                    continue;
+                }
+                
+                var view = FetchCanvasByType(field.FieldType);
+               
+                if (view != null)
+                {
+                    field.SetValue(this, view);
+                }
+                else
+                {
+                    Debug.LogWarning($"View of type '{field.FieldType}' not found for field '{field.Name}' in '{GetType().Name}'.");
                 }
             }
         }
@@ -180,9 +194,9 @@ namespace Frame.Runtime.Bootstrap
         /// </summary>
         /// <param name="type">The type of canvas to fetch.</param>
         /// <returns>The canvas instance if found; otherwise, null.</returns>
-        private ICanvas FetchCanvasByType(Type type)
+        private IView FetchCanvasByType(Type type)
         {
-            return _canvasList.FirstOrDefault(type.IsInstanceOfType);
+            return _viewList.FirstOrDefault(type.IsInstanceOfType);
         }
         
         private async void Update()

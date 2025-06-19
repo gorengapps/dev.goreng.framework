@@ -6,7 +6,7 @@ namespace Frame.Runtime.Canvas
     /// <summary>
     /// Defines the contract for canvas components within a scene.
     /// </summary>
-    public interface ICanvas
+    public interface IView
     {
         /// <summary>
         /// Static provider to resolve internal dependencies
@@ -19,7 +19,7 @@ namespace Frame.Runtime.Canvas
         /// <param name="provider">The provider that we want to use to resolve dependencies</param>
         static void SetProvider(IDependencyProvider provider)
         {
-            ICanvas.provider = provider;
+            IView.provider = provider;
         }
         
         /// <summary>
@@ -27,13 +27,13 @@ namespace Frame.Runtime.Canvas
         /// Perform any necessary cleanup operations here.
         /// </summary>
         /// <returns>A task that represents the asynchronous unload operation.</returns>
-        Awaitable SceneWillUnloadAsync();
+        Awaitable ViewWillUnloadAsync();
 
         /// <summary>
         /// Signals that the scene will be loaded.
         /// Perform any necessary initialization operations here.
         /// </summary>
         /// <returns>A task that represents the asynchronous load operation.</returns>
-        Awaitable SceneWillLoadAsync();
+        Awaitable ViewWillLoadAsync();
     }
 }
