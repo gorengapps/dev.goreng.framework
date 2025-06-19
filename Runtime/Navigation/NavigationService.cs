@@ -7,10 +7,12 @@ using Frame.Runtime.Attributes;
 using Frame.Runtime.Bootstrap;
 using Frame.Runtime.Data;
 using Frame.Runtime.Scene;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Frame.Runtime.Navigation
 {
+    [UsedImplicitly]
     public class NavigationService : INavigationService
     {
         private const string _scenesKey = "scenes";
@@ -62,6 +64,10 @@ namespace Frame.Runtime.Navigation
                 {
                     _scenes[bootstrap] = scene;
                 }
+                else
+                {
+                    Debug.LogError($"Scene '{scene.sceneType}' is not mapped in the scene mapping.");
+                }
             }
         }
 
@@ -79,7 +85,7 @@ namespace Frame.Runtime.Navigation
 
             if (!TryGetScene<T>(out var scene))
             {
-                Debug.LogError($"Scene '{typeof(T)}' is not loaded properly.");
+                Debug.LogError($"Scene '{typeof(T)}' is not loaded properly. did you generate the scene mapping?");
                 return null;
             }
 
@@ -111,10 +117,7 @@ namespace Frame.Runtime.Navigation
                 return;
             }
             
-            if (_openScreens.ContainsKey(type))
-            {
-                _openScreens.Remove(type);
-            }
+            _openScreens.Remove(type);
 
             await sceneHandle.SceneWillUnloadAsync();
             await sceneHandle.UnloadAsync();

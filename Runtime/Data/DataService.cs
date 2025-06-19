@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Frame.Runtime.Extensions;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Frame.Runtime.Data
 {
+    [UsedImplicitly]
     public class DataService : IDataService
     {
         public async Awaitable<List<T>> LoadListAsync<T>(string key)

@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Frame.Runtime.Bootstrap;
 using Frame.Runtime.Scene.Loader;
 using UnityEngine;
@@ -18,7 +17,7 @@ namespace Frame.Runtime.Scene
         /// <param name="sceneLoader"></param>
         public static void SetSceneLoader(ISceneLoader sceneLoader)
         {
-            IAsyncScene.loader = sceneLoader;
+            loader = sceneLoader;
         }
         
         /// <summary>
