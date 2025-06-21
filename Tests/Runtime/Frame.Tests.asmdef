@@ -1,0 +1,28 @@
+{
+    "name": "Frame.Tests",
+    "rootNamespace": "Frame.Tests",
+    "references": [
+        "GUID:27619889b8ba8c24980f49ee34dbb44a",
+        "GUID:0acc523941302664db1f4e527237feb3",
+        "GUID:952d92cc5a27849db81d01c6237a437f",
+        "GUID:9e24947de15b9834991c9d8411ea37cf",
+        "GUID:84651a3751eca9349aac36a66bba901b",
+        "GUID:69448af7b92c7f342b298e06a37122aa",
+        "GUID:eb367f659fb5d4f4a90298a468cb008f",
+        "GUID:1d539fe3bfacd4808ba33e897bf185dd",
+        "GUID:d78ac64f1f5dc914db3fb20beae01484"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

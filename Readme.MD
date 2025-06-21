@@ -7,6 +7,8 @@ But extending it is quite easy.
 
 - [Dependency Injection](/Documentation/Dependency%20Injection.md)
 - [Scene Management](/Documentation/Scene%20Management.md)
+- [Testing](/Documentation/Testing.md)
+
 ## Requirements
 
 - Unity 2022.3.x LTS
@@ -16,6 +18,15 @@ Add a new "Scoped Registry" to your package manager and use the following url
 https://packages.goreng.dev you should be able to see The Framework package in your list.
 you can use the scope `dev.goreng`
 ## Change-log
+### 1.5.1 (Current)
+ - Updated framework to use modern Unity patterns
+ - Migrated from `ICanvas` to `IView` interface for better naming consistency
+ - Updated all async methods to use Unity's `Awaitable` instead of `Task`
+ - Renamed `[FetchCanvas]` attribute to `[FetchView]` for consistency
+ - Enhanced Bootstrap lifecycle with `OnBootstrapUpdateAsync` and `OnBootstrapLateUpdateAsync`
+ - Improved scene management and view resolution
+ - Updated documentation to reflect current API
+
 ### 0.2.5
  - Added a custom editor window for `AsyncScene` this allows us to automate some critical configuration that was easy to miss.
 	 - Automatically update the label

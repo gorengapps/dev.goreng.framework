@@ -4,42 +4,42 @@ The idea of this framework is to provide an easy to use setup to get a nice scen
 
 The package is broken down in a few structures which will be explained further down in this document.
 
-- [Canvas](#Canvas)
+- [View](#View)
 - [Bootstrap](#Bootstrap)
-## Canvas
+## View
 
-A canvas can be seen as a simple `View` that should be as dumb as possible, make sure that you define an interface to make it play nicely with the setup. It is in essence a regular `MonoBehaviour`.
+A view can be seen as a simple `View` that should be as dumb as possible, make sure that you define an interface to make it play nicely with the setup. It is in essence a regular `MonoBehaviour`.
 
 ```csharp
-// Make sure this implements ICanvas
-public interface ISampleCanvas: ICanvas
+// Make sure this implements IView
+public interface ISampleView: IView
 {
 	public void SetLabel(string value);
 }
 
-public partial class SampleCanvas: Monobehaviour 
+public partial class SampleView: MonoBehaviour 
 {
 	[SerializeField] private TextMeshProUGUI _label;
 }
 
-public partial class SampleCanvas: ISampleCanvas 
+public partial class SampleView: ISampleView 
 {
 	public void SetLabel(string value) 
 	{
 		_label.text = value;
 	}
 	
-	public async Task SceneWillLoad() 
+	public async Awaitable ViewWillLoadAsync() 
 	{
-		// If your canvas needs support for InjectFields 
-		provider.Inject(this);
+		// If your view needs support for InjectFields 
+		IView.provider.Inject(this);
 		
-		return Task.completedTask;
+		return;
 	}
 	
-	public async Task SceneWillLoad() 
+	public async Awaitable ViewWillUnloadAsync() 
 	{
-		return Task.completedTask;
+		return;
 	}
 }
 ```
@@ -49,33 +49,33 @@ public partial class SampleCanvas: ISampleCanvas
 Every physical Unity scene needs a Bootstrap counterpart in this setup, the bootstrap is where you kick off your scene logic. Under the hood its still a `MonoBehaviour` but there are some caveats that you need to take into consideration.
 
 ```csharp
-public parial class SampleBootstap: AbstractBootrap 
+public partial class SampleBootstrap: AbstractBootstrap 
 {
 	// Not needed in real app every bootstrap has this service already defined
 	[InjectField] INavigationService _navigationService;
 
-	// Will load the canvas automatically from your hierarchy
-	[FetchCanvas] ISampleCanvas _sampleCanvas;
+	// Will load the view automatically from your hierarchy
+	[FetchView] ISampleView _sampleView;
 
 	// Called when the bootstrap will load
-	public override OnBootstrapStart() 
+	public override async Awaitable OnBootstrapStartAsync() 
 	{
-		// Important to call the base to let its do its magic
-		base.OnBootstrapStart();
+		// Important to call the base to let it do its magic
+		await base.OnBootstrapStartAsync();
 		
 		await ShowHud();
 		
-		_sampleCanvas?.SetValue("Done Loading");
+		_sampleView?.SetLabel("Done Loading");
 	}
 
 	// Called when the bootstrap will unload
-	public override OnBootstrapStop() 
+	public override async Awaitable OnBootstrapStopAsync() 
 	{
+		await base.OnBootstrapStopAsync();
 	}
 	
-	private async Task ShowHud()
+	private async Awaitable ShowHud()
 	{
-		
 		var hudBootstrap = await _navigationService
 			.ShowSupplementaryScene<IHudBootstrap>("key", false);
 		
