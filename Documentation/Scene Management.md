@@ -8,7 +8,7 @@ The package is broken down in a few structures which will be explained further d
 - [Bootstrap](#Bootstrap)
 ## View
 
-A view can be seen as a simple `View` that should be as dumb as possible, make sure that you define an interface to make it play nicely with the setup. It is in essence a regular `MonoBehaviour`.
+A view should be as dumb as possible, make sure that you define an interface to make it play nicely with the setup. It is in essence a regular `MonoBehaviour`.
 
 ```csharp
 // Make sure this implements IView
@@ -101,7 +101,7 @@ Its up to the developer to not clutter your `Controller` / `Bootstrap` you can u
 
 When declaring a new scene you can just create a regular scene. Once you have a scene in Unity you can right click to create a Framework scene
 
-![[Create Scene.png]]
+![Create Scene](Images/Create%20Scene.png)
 
 Once you have created the scene you are ready to configure it. fill in a type (key) for your scene that you reference from code and assign a physical Unity scene to the scene property. Mark the asset as addressable and give it the key `scenes` if it doesn't exist you can define it yourself.
 
@@ -109,4 +109,4 @@ Once you have created the scene you are ready to configure it. fill in a type (k
 
 The `NavigationService` will try to load all assets by using the key `scenes`.
 
-![[Configure Scene.png]]
+![Configure Scene](Images/Configure%20Scene.png)
