@@ -104,7 +104,7 @@ public class Core: MonoBehaviour {
     public static IDependencyProvider provider;
     
     public void Start() {
-         
+        
         // Register the Data object as a dependency, setting it as a singleton 
         _container.value.Register((provider) => 
         new Data(Guid.NewGuid().ToString()), true);
@@ -118,8 +118,8 @@ public class Core: MonoBehaviour {
         provider = _container.value.Make();
             
         // Resolve a dependency manually
-        IDataContainer container = _provider.Get<IDataContainer>();
-        container.Hello() // Hello GUID
+        IDataContainer container = provider.Get<IDataContainer>();
+        container.Hello(); // Hello GUID
     }
 }
 ```
@@ -137,11 +137,11 @@ public class Core: MonoBehaviour {
     
     public void Start() {
           
-          // Create the container on startup    
+         // Create the container on startup    
          provider = _container.value.Make();
          
-         // Resolve a depedency manually
-         INavigationService navigationService = _provider.Get<INavigationService>();
+         // Resolve a dependency manually
+         INavigationService navigationService = provider.Get<INavigationService>();
     }
 }
 ```
