@@ -1,4 +1,13 @@
 This is a very simple dependency injection tool that allows you to do `MonoBehaviour` Injection and regular constructor injection.
+
+## IRef Interface Serialization
+
+The framework provides `IRef<T>` for serializing interface references in the Unity Inspector. This allows you to assign implementations of interfaces directly in the editor without losing the benefits of interface-based design.
+
+```csharp
+[SerializeField] private IRef<IDependenciesContainer> _container;
+```
+
 ## Setup
 
 Make a script that can hold a reference to our container 
