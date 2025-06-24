@@ -118,8 +118,8 @@ public class Core: MonoBehaviour {
         provider = _container.value.Make();
             
         // Resolve a dependency manually
-        IDataContainer container = _provider.Get<IDataContainer>();
-        container.Hello() // Hello GUID
+        IDataContainer container = provider.Get<IDataContainer>();
+        container.Hello(); // Hello GUID
     }
 }
 ```
@@ -140,8 +140,8 @@ public class Core: MonoBehaviour {
           // Create the container on startup    
          provider = _container.value.Make();
          
-         // Resolve a depedency manually
-         INavigationService navigationService = _provider.Get<INavigationService>();
+         // Resolve a dependency manually
+         INavigationService navigationService = provider.Get<INavigationService>();
     }
 }
 ```
