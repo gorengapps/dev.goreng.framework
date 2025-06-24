@@ -1,3 +1,4 @@
+using System;
 using Frame.Runtime.Bootstrap;
 using Frame.Runtime.Canvas;
 using Frame.Runtime.Data;
@@ -21,6 +22,9 @@ namespace Frame.Runtime
 
         public static void Initialize(IDependencyProvider provider)
         {
+            if (provider == null)
+                throw new ArgumentNullException(nameof(provider));
+                
             IBootstrap.SetProvider(provider);
             IView.SetProvider(provider);
             CoroutineTask.SetRunLoop(provider.Get<IRunLoop>());

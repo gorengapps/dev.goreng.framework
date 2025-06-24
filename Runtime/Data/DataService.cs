@@ -56,7 +56,7 @@ namespace Frame.Runtime.Data
         {
             var asset = await LoadAssetAsync<GameObject>(key);
             
-            if (asset.TryGetComponent(typeof(T), out var component))
+            if (asset != null && asset.TryGetComponent(typeof(T), out var component))
             {
                 return component as T;
             }
@@ -69,6 +69,12 @@ namespace Frame.Runtime.Data
             try
             {
                 var asset = await LoadAssetAsync<GameObject>(key);
+
+                if (asset == null)
+                {
+                    Debug.LogError($"Failed to load asset with key '{key}' for instantiation.");
+                    return default;
+                }
 
                 // Instantiate the loaded asset
                 var instance = Object.Instantiate(asset);
