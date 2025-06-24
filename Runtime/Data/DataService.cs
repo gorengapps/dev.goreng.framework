@@ -9,14 +9,31 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Frame.Runtime.Data
 {
+    /// <summary>
+    /// Default implementation of the IDataService interface.
+    /// Provides asset loading functionality using Unity's Addressable Asset System.
+    /// Supports loading single assets, lists of assets, and instantiated assets with component retrieval.
+    /// </summary>
     [UsedImplicitly]
     public class DataService : IDataService
     {
+        /// <summary>
+        /// Loads a list of assets of the specified type using the provided key.
+        /// </summary>
+        /// <typeparam name="T">The type of assets to load.</typeparam>
+        /// <param name="key">The addressable key used to locate the assets.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of loaded assets.</returns>
         public async Awaitable<List<T>> LoadListAsync<T>(string key)
         {
             return await LoadAssetsAsync<T>(key);
         }
         
+        /// <summary>
+        /// Loads a list of GameObjects and extracts components of the specified type from them.
+        /// </summary>
+        /// <typeparam name="T">The component type to extract from the loaded GameObjects.</typeparam>
+        /// <param name="key">The addressable key used to locate the GameObject assets.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of components of type T.</returns>
         public async Awaitable<List<T>> LoadListAsyncAs<T>(string key)
         {
             var list = await LoadListAsync<GameObject>(key);
@@ -27,6 +44,12 @@ namespace Frame.Runtime.Data
                 .ToList();
         }
 
+        /// <summary>
+        /// Loads a single asset of the specified type using the provided key.
+        /// </summary>
+        /// <typeparam name="T">The type of asset to load.</typeparam>
+        /// <param name="key">The addressable key used to locate the asset.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the loaded asset, or default(T) if loading fails.</returns>
         public async Awaitable<T> LoadAssetAsync<T>(string key)
         {
             T asset = default;
@@ -52,6 +75,13 @@ namespace Frame.Runtime.Data
             
             return asset;
         }
+        
+        /// <summary>
+        /// Loads a GameObject asset and extracts a component of the specified type from it.
+        /// </summary>
+        /// <typeparam name="T">The component type to extract from the loaded GameObject.</typeparam>
+        /// <param name="key">The addressable key used to locate the GameObject asset.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the component of type T, or null if not found.</returns>
         public async Awaitable<T> LoadAssetAsyncAs<T>(string key) where T: class
         {
             var asset = await LoadAssetAsync<GameObject>(key);
@@ -64,6 +94,13 @@ namespace Frame.Runtime.Data
             return default;
         }
 
+        /// <summary>
+        /// Loads a GameObject asset, instantiates it, and extracts a component of the specified type.
+        /// If the component is not found or an error occurs, the instantiated object is destroyed.
+        /// </summary>
+        /// <typeparam name="T">The component type to extract from the instantiated GameObject.</typeparam>
+        /// <param name="key">The addressable key used to locate the GameObject asset.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the component of type T, or null if instantiation or component retrieval fails.</returns>
         public async Awaitable<T> LoadAndInstantiateAsync<T>(string key) where T: class
         {
             try
@@ -90,6 +127,13 @@ namespace Frame.Runtime.Data
             }
         }
 
+        /// <summary>
+        /// Internal method that handles loading multiple assets using Addressable resource locations.
+        /// Loads all assets matching the specified key and type, handling failures gracefully.
+        /// </summary>
+        /// <typeparam name="T">The type of assets to load.</typeparam>
+        /// <param name="key">The addressable key used to locate the assets.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of successfully loaded assets.</returns>
         private async Awaitable<List<T>> LoadAssetsAsync<T>(string key)
         {
             // Load the resource locations matching the key and type T
