@@ -120,6 +120,7 @@ namespace Frame.Runtime.Navigation
 
             if (!_sceneMapping.TryGetValue(sceneHandle.sceneType, out var type))
             {
+                Debug.LogWarning($"Scene type '{sceneHandle.sceneType}' not found in scene mapping. Cannot unload scene.");
                 return;
             }
             

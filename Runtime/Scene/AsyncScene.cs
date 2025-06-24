@@ -41,7 +41,7 @@ namespace Frame.Runtime.Scene
         /// </summary>
         private async Awaitable UnloadScene()
         {
-            if (_sceneReference.IsValid())
+            if (!_sceneReference.IsValid())
             {
                 return;
             }
