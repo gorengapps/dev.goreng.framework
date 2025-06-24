@@ -62,10 +62,14 @@ namespace Frame.Runtime.Tasks
             {
                 _completed.SetResult(_handle.Result);
             }
-
-            if (_handle.Status is AsyncOperationStatus.Failed or AsyncOperationStatus.None)
+            else if (_handle.Status == AsyncOperationStatus.Failed)
             {
-                _completed.SetException(_handle.OperationException);
+                _completed.SetException(_handle.OperationException ?? new InvalidOperationException("Operation failed with unknown error"));
+            }
+            else
+            {
+                // Handle None or other unexpected states
+                _completed.SetException(new InvalidOperationException($"Operation completed with unexpected status: {_handle.Status}"));
             }
         }
         

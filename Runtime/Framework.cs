@@ -1,3 +1,4 @@
+using System;
 using Frame.Runtime.Bootstrap;
 using Frame.Runtime.Canvas;
 using Frame.Runtime.Data;
@@ -36,6 +37,9 @@ namespace Frame.Runtime
         /// <param name="provider">The dependency provider to use for service resolution.</param>
         public static void Initialize(IDependencyProvider provider)
         {
+            if (provider == null)
+                throw new ArgumentNullException(nameof(provider));
+                
             IBootstrap.SetProvider(provider);
             IView.SetProvider(provider);
             CoroutineTask.SetRunLoop(provider.Get<IRunLoop>());

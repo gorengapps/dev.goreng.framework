@@ -72,6 +72,9 @@ namespace Frame.Runtime.Navigation
         /// <returns>A task that represents the asynchronous initialization operation.</returns>
         public Awaitable Initialise(Dictionary<string, Type> sceneMapping)
         {
+            if (sceneMapping == null)
+                throw new ArgumentNullException(nameof(sceneMapping));
+            
             if (_initialiseTask != null)
             {
                 return _initialiseTask;
@@ -79,7 +82,10 @@ namespace Frame.Runtime.Navigation
 
             lock (_initialiseLock)
             {
-                _initialiseTask = InitialiseInternal(sceneMapping);
+                if (_initialiseTask == null)
+                {
+                    _initialiseTask = InitialiseInternal(sceneMapping);
+                }
             }
 
             return _initialiseTask;
@@ -183,6 +189,7 @@ namespace Frame.Runtime.Navigation
 
             if (!_sceneMapping.TryGetValue(sceneHandle.sceneType, out var type))
             {
+                Debug.LogWarning($"Scene type '{sceneHandle.sceneType}' not found in scene mapping. Cannot unload scene.");
                 return;
             }
             
