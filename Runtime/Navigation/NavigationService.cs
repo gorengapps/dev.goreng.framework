@@ -32,6 +32,9 @@ namespace Frame.Runtime.Navigation
 
         public Awaitable Initialise(Dictionary<string, Type> sceneMapping)
         {
+            if (sceneMapping == null)
+                throw new ArgumentNullException(nameof(sceneMapping));
+            
             if (_initialiseTask != null)
             {
                 return _initialiseTask;
@@ -39,7 +42,10 @@ namespace Frame.Runtime.Navigation
 
             lock (_initialiseLock)
             {
-                _initialiseTask = InitialiseInternal(sceneMapping);
+                if (_initialiseTask == null)
+                {
+                    _initialiseTask = InitialiseInternal(sceneMapping);
+                }
             }
 
             return _initialiseTask;

@@ -39,8 +39,15 @@ namespace Frame.Editor
             
             if (force)
             {
-                var pathOfFirstScene = EditorBuildSettings.scenes[0].path;
-                asset = AssetDatabase.LoadAssetAtPath<SceneAsset>(pathOfFirstScene);
+                if (EditorBuildSettings.scenes.Length > 0)
+                {
+                    var pathOfFirstScene = EditorBuildSettings.scenes[0].path;
+                    asset = AssetDatabase.LoadAssetAtPath<SceneAsset>(pathOfFirstScene);
+                }
+                else
+                {
+                    Debug.LogWarning("No scenes found in build settings. Cannot force services scene.");
+                }
             }
             
             EditorSceneManager.playModeStartScene = asset;

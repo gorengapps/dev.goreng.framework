@@ -23,7 +23,7 @@ namespace Frame.Runtime.Scene
         /// <param name="setActiveScene">Flag that allows you to set the scene as a main scene</param>
         private async Awaitable InternalLoad(bool setActiveScene)
         {
-            if (_sceneReference.IsValid())
+            if (!_sceneReference.IsValid())
             {
                 return;
             }
@@ -41,7 +41,7 @@ namespace Frame.Runtime.Scene
         /// </summary>
         private async Awaitable UnloadScene()
         {
-            if (!_sceneReference.IsValid())
+            if (_sceneReference.IsValid())
             {
                 return;
             }

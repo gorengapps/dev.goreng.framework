@@ -15,6 +15,12 @@ namespace Frame.Editor
         private void UpdateAddressableLabel()
         {
             var settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (settings == null)
+            {
+                Debug.LogError("Addressable Asset Settings not found. Please ensure Addressables is properly configured.");
+                return;
+            }
+            
             var path = AssetDatabase.GetAssetPath(target);
             
             var assetGuid = AssetDatabase.AssetPathToGUID(path);
@@ -26,6 +32,11 @@ namespace Frame.Editor
             }
             
             var entry = settings.FindAssetEntry(assetGuid);
+            if (entry == null)
+            {
+                Debug.LogError($"Failed to create or find addressable entry for asset: {path}");
+                return;
+            }
 
             var sceneTypeProperty = serializedObject.FindProperty("_sceneType"); 
             
