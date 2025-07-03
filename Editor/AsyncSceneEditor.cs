@@ -3,6 +3,7 @@
 using Frame.Runtime.Scene;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Frame.Editor
