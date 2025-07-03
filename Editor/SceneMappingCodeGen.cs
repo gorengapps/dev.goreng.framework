@@ -37,9 +37,8 @@ namespace Frame.Runtime
                             && t.GetCustomAttribute<SceneAttribute>() != null)
                 .Select(t =>
                 {
-
                     var type = t.GetInterfaces()
-                        .FirstOrDefault(x => x != typeof(IBootstrap)) ?? t;
+                        .FirstOrDefault(i => i.GetInterfaces().Contains(typeof(IBootstrap))) ?? t;
                     
                     var sceneName = t.GetCustomAttribute<SceneAttribute>().sceneName;
                     return $"{{ \"{sceneName}\", typeof({type.FullName}) }},\n";
