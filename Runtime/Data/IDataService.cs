@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Frame.Runtime.Data
 {
-    public interface IDataService
+    public interface IDataService : System.IDisposable
     {
         /// <summary>
         /// Loads a list of assets of type T associated with the specified key.
