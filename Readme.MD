@@ -16,6 +16,7 @@ But extending it is quite easy.
 
 - [Dependency Injection](/Documentation/Dependency%20Injection.md)
 - [Scene Management](/Documentation/Scene%20Management.md)
+- [Data Service](/Documentation/Data%20Service.md)
 ## Requirements
 
 - Unity 2022.3.x LTS

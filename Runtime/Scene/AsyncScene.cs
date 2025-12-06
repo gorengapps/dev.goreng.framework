@@ -82,15 +82,10 @@ namespace Frame.Runtime.Scene
     {
         public async Awaitable SceneWillUnloadAsync()
         {
-            if (_cachedBootstrap == null)
+            if (TryGetBootstrap(out var bootstrap))
             {
-                Debug.LogError("Attempting to unload scene without a bootstrap instance. " +
-                               "this can happen if you are you awaiting a long running task inside " +
-                               "the OnBootstrapStartAsync");
-                return;
+                await bootstrap.SceneWillUnloadAsync();
             }
-            
-            await _cachedBootstrap.SceneWillUnloadAsync();
         }
 
         public async Awaitable<IBootstrap> LoadAsync(bool setActive = true)
@@ -102,16 +97,26 @@ namespace Frame.Runtime.Scene
 
         public async Awaitable UnloadAsync()
         {
+            if (TryGetBootstrap(out var bootstrap))
+            {
+                await bootstrap.OnBootstrapStopAsync();
+                await UnloadScene();
+            }
+        }
+
+        private bool TryGetBootstrap(out IBootstrap bootstrap)
+        {
             if (_cachedBootstrap == null)
             {
                 Debug.LogError("Attempting to unload scene without a bootstrap instance. " +
-                               "this can happen if you are you awaiting a long running task inside " +
+                               "this can happen if you are awaiting a long running task inside " +
                                "the OnBootstrapStartAsync");
-                return;
+                bootstrap = null;
+                return false;
             }
-            
-            await _cachedBootstrap.OnBootstrapStopAsync();
-            await UnloadScene();
+
+            bootstrap = _cachedBootstrap;
+            return true;
         }
     }
 }

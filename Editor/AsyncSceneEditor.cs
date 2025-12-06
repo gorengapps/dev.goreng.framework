@@ -64,12 +64,38 @@ namespace Frame.Editor
             
             UpdateAddressableLabel();
             serializedObject.ApplyModifiedProperties();
-            return base.CreateInspectorGUI();
+            
+            var root = new VisualElement();
+            root.Add(new HelpBox("The Scene Name is automatically synced with the filename.", HelpBoxMessageType.Info));
+            root.Add(new IMGUIContainer(() => {
+                serializedObject.Update();
+                var iterator = serializedObject.GetIterator();
+                var enterChildren = true;
+                while (iterator.NextVisible(enterChildren))
+                {
+                    using (new EditorGUI.DisabledScope("m_Script" == iterator.propertyPath || "_sceneType" == iterator.propertyPath))
+                    {
+                        EditorGUILayout.PropertyField(iterator, true);
+                    }
+                    enterChildren = false;
+                }
+                serializedObject.ApplyModifiedProperties();
+            }));
+            
+            return root;
         }
         
         [MenuItem("Assets/Create/Framework/Scene/Create Scene", false, 1)]
         public static void CreateScene()
         {
+            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (settings == null)
+            {
+                EditorUtility.DisplayDialog("Addressables Not Initialized", 
+                    "Addressable Asset Settings not found.\nPlease initialize Addressables first via Window > Asset Management > Addressables > Groups.", "OK");
+                return;
+            }
+
             var path = AssetDatabase.GetAssetPath(Selection.activeObject);
 
             if (string.IsNullOrEmpty(path))
@@ -90,18 +116,10 @@ namespace Frame.Editor
             
             AssetDatabase.SaveAssets();
             
-            var settings = AddressableAssetSettingsDefaultObject.Settings;
-            if (settings != null)
-            {
-                var createdAssetPath = AssetDatabase.GetAssetPath(asset);
-                var assetGuid = AssetDatabase.AssetPathToGUID(createdAssetPath);
-                
-                settings.CreateAssetReference(assetGuid);
-            }
-            else
-            {
-                Debug.LogWarning("Addressable Asset Settings not found. The created scene will not be automatically registered as addressable.");
-            }
+            var createdAssetPath = AssetDatabase.GetAssetPath(asset);
+            var assetGuid = AssetDatabase.AssetPathToGUID(createdAssetPath);
+            
+            settings.CreateAssetReference(assetGuid);
             
             Selection.activeObject = asset;
         } 
