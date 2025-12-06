@@ -41,7 +41,7 @@ namespace Frame.Runtime
                         .FirstOrDefault(i => i.GetInterfaces().Contains(typeof(IBootstrap))) ?? t;
                     
                     var sceneName = t.GetCustomAttribute<SceneAttribute>().sceneName;
-                    return $"{{ \"{sceneName}\", typeof({type.FullName}) }},\n";
+                    return $"            {{ \"{sceneName}\", typeof({type.FullName}) }},";
                 })
                 .OrderBy(line => line)
                 .ToList();

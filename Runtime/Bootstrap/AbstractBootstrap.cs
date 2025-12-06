@@ -162,20 +162,33 @@ namespace Frame.Runtime.Bootstrap
             _viewList.AddRange(views);
         }
 
+        private static readonly Dictionary<Type, List<FieldInfo>> _cachedViewFields = new Dictionary<Type, List<FieldInfo>>();
+
+        private List<FieldInfo> GetCachedViewFields()
+        {
+            var type = GetType();
+            if (_cachedViewFields.TryGetValue(type, out var fields))
+            {
+                return fields;
+            }
+
+            fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(field => field.GetCustomAttribute<FetchViewAttribute>(false) != null)
+                .ToList();
+
+            _cachedViewFields[type] = fields;
+            return fields;
+        }
+
         /// <summary>
-        /// Resolves canvases by setting fields marked with the FetchCanvas attribute.
+        /// Resolves canvases by setting fields marked with the FetchCanvas attribute, using cached fields for performance.
         /// </summary>
         private void ResolveViews()
         {
-            var fields = GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var fields = GetCachedViewFields();
 
             foreach (var field in fields)
             {
-                if (field.GetCustomAttribute<FetchViewAttribute>(false) == null)
-                {
-                    continue;
-                }
-                
                 var view = FetchCanvasByType(field.FieldType);
                
                 if (view != null)

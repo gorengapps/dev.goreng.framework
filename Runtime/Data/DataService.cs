@@ -17,6 +17,8 @@ namespace Frame.Runtime.Data
     [UsedImplicitly]
     public class DataService : IDataService
     {
+        private readonly HashSet<object> _trackedAssets = new HashSet<object>();
+
         /// <summary>
         /// Loads a list of assets of the specified type using the provided key.
         /// </summary>
@@ -67,6 +69,11 @@ namespace Frame.Runtime.Data
                     Debug.LogError($"Failed to load asset with key '{key}'.");
                     return default;
                 }
+                
+                if (asset != null)
+                {
+                    _trackedAssets.Add(asset);
+                }
             }
             catch (System.Exception ex)
             {
@@ -112,9 +119,17 @@ namespace Frame.Runtime.Data
                     Debug.LogError($"Failed to load asset with key '{key}' for instantiation.");
                     return default;
                 }
+                
+                // We transfer ownership of the asset to the Releaser on the instance.
+                // Remove it from our tracking so we don't double-release it on Dispose.
+                _trackedAssets.Remove(asset);
 
                 // Instantiate the loaded asset
                 var instance = Object.Instantiate(asset);
+                
+                // Attach the releaser to ensure the asset is released when the instance is destroyed
+                var releaser = instance.AddComponent<AddressableReleaser>();
+                releaser.Initialize(asset);
 
                 if (instance.TryGetComponent(typeof(T), out var component))
                 {
@@ -144,39 +159,59 @@ namespace Frame.Runtime.Data
         {
             // Load the resource locations matching the key and type T
             var locationsHandle = Addressables.LoadResourceLocationsAsync(key, typeof(T));
-            var locations = await locationsHandle.ToTask();
+            
+            try
+            {
+                var locations = await locationsHandle.ToTask();
 
-            // Check if any locations were found
-            if (locations == null || locations.Count == 0)
+                // Check if any locations were found
+                if (locations == null || locations.Count == 0)
+                {
+                    Debug.LogWarning($"No resource locations found for key '{key}' and type '{typeof(T)}'.");
+                    return new List<T>();
+                }
+
+                var assets = new List<T>();
+                var assetHandles = locations
+                    .Select(Addressables.LoadAssetAsync<T>)
+                    .ToList();
+
+                // Wait for all assets to load
+                var task = Task.WhenAll(assetHandles.Select(handle => handle.ToTask()));
+
+                await task.AsAwaitable();
+                
+                // Collect loaded assets and handle any failures
+                foreach (var handle in assetHandles)
+                {
+                    if (handle.Status == AsyncOperationStatus.Succeeded)
+                    {
+                        assets.Add(handle.Result);
+                        _trackedAssets.Add(handle.Result);
+                    }
+                    else
+                    {
+                        Debug.LogError($"Failed to load asset at location '{handle.DebugName}'.");
+                    }
+                }
+                return assets;
+            }
+            finally
             {
                 Addressables.Release(locationsHandle);
-                Debug.LogWarning($"No resource locations found for key '{key}' and type '{typeof(T)}'.");
-                return new List<T>();
             }
+        }
 
-            var assets = new List<T>();
-            var assetHandles = locations
-                .Select(Addressables.LoadAssetAsync<T>)
-                .ToList();
-
-            // Wait for all assets to load
-            var task = Task.WhenAll(assetHandles.Select(handle => handle.ToTask()));
-
-            await task.AsAwaitable();
-            
-            // Collect loaded assets and handle any failures
-            foreach (var handle in assetHandles)
+        public void Dispose()
+        {
+            foreach (var asset in _trackedAssets)
             {
-                if (handle.Status == AsyncOperationStatus.Succeeded)
+                if (asset != null)
                 {
-                    assets.Add(handle.Result);
-                }
-                else
-                {
-                    Debug.LogError($"Failed to load asset at location '{handle.DebugName}'.");
+                    Addressables.Release(asset);
                 }
             }
-            return assets;
+            _trackedAssets.Clear();
         }
     }
 }
