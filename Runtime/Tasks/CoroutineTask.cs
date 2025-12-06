@@ -16,16 +16,16 @@ namespace Frame.Runtime.Tasks
         /// <summary>
         /// The run loop instance used for executing coroutines.
         /// </summary>
-        protected static IRunLoop _runLoop;
+        protected static ICoroutineRunner _runner;
         
         /// <summary>
         /// Sets the run loop instance to be used for coroutine execution.
         /// This must be called during framework initialization.
         /// </summary>
         /// <param name="runLoop">The run loop instance to use for coroutine execution.</param>
-        public static void SetRunLoop(IRunLoop runLoop)
+        public static void SetRunner(ICoroutineRunner runner)
         {
-            _runLoop = runLoop;
+            _runner = runner;
         }
     }
     
@@ -94,7 +94,7 @@ namespace Frame.Runtime.Tasks
         /// <returns>A Task&lt;T&gt; that represents the asynchronous operation and its result.</returns>
         public async Task<T> RunAsync()
         {
-            _runLoop.Coroutine(RunCoroutine());
+            _runner.Coroutine(RunCoroutine());
             return await _completed.Task;
         }
     }

@@ -26,7 +26,8 @@ namespace Frame.Runtime
         {
             container.Register<IDataService, DataService>();
             container.Register<INavigationService, NavigationService>();
-            container.Register<IRunLoop>((_) => new GameObject("Runloop").AddComponent<BaseRunLoop>());
+            container.Register<IRunLoop, PlayerRunLoop>();
+            container.Register<ICoroutineRunner>((_) => new GameObject().AddComponent<MonoBehaviourCoroutineRunner>());
         }
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace Frame.Runtime
                 
             IBootstrap.SetProvider(provider);
             IView.SetProvider(provider);
-            CoroutineTask.SetRunLoop(provider.Get<IRunLoop>());
+            CoroutineTask.SetRunner(provider.Get<ICoroutineRunner>());
         }
     }
 }
