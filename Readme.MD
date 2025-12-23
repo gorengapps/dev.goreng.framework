@@ -46,6 +46,10 @@ Add a new "Scoped Registry" to your package manager:
 3. The Framework package should now appear in your Package Manager under "My Registries"
 4. You can use the scope `dev.goreng` to find all related packages
 ## Change-log
+### 1.5.4
+ - Fixed scene generation
+ - coroutine-runner instead of New Gameobject
+
 ### 1.5.1
  - Updated documentation to reflect current API
  - Renamed `ICanvas` to `IView` for better clarity
