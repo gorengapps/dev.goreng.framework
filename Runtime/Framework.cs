@@ -27,7 +27,9 @@ namespace Frame.Runtime
             container.Register<IDataService, DataService>();
             container.Register<INavigationService, NavigationService>();
             container.Register<IRunLoop, PlayerRunLoop>();
-            container.Register<ICoroutineRunner>((_) => new GameObject().AddComponent<MonoBehaviourCoroutineRunner>());
+            container.Register<ICoroutineRunner>((_) => 
+                new GameObject("coroutine-runner").AddComponent<MonoBehaviourCoroutineRunner>()
+            );
         }
 
         /// <summary>
