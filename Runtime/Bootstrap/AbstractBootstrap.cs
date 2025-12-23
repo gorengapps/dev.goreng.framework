@@ -240,7 +240,7 @@ namespace Frame.Runtime.Bootstrap
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Exception during OnApplicationQuit: {ex.Message}");
+                Debug.LogException(ex);
             }
         }
     }
